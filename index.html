@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 
+         * APPLE LIQUID GLASS / VISIONOS AESTHETIC
+         */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-blur: 25px;
+            --accent-color: #880000;
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+            mix-blend-mode: screen;
+        }
+
+        .custom-cursor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .custom-cursor.hovering {
+            width: 40px;
+            height: 40px;
+            background: rgba(136, 0, 0, 0.5);
+        }
+
+        /* 
+         * DARK + MAROON GRADIENT BACKGROUND 
+         */
+        .mesh-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(ellipse at 70% 20%, rgba(136, 0, 0, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(136, 0, 0, 0.25) 0%, transparent 45%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 25%, #150808 50%, #0d0d0d 100%);
+        }
+
+        /* Particles Container */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* 
+         * GLASS CONTAINER 
+         */
+        .glass-container {
+            width: 100%;
+            max-width: 580px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: containerAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(30px);
+            opacity: 0;
+            position: relative;
+        }
+
+        .glass-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .glass-container:hover .glass-shine {
+            opacity: 1;
+        }
+
+        @keyframes containerAppear {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 
+         * SEARCH INPUT 
+         */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 20px 24px;
+            font-family: var(--font-stack);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-secondary);
+        }
+
+        input[type="text"]:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        input[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-color);
+            box-shadow:
+                0 0 0 4px rgba(136, 0, 0, 0.25),
+                0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 
+         * CONTROLS ROW 
+         */
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        /* 
+         * CUSTOM DROPDOWN 
+         */
+        .custom-dropdown {
+            flex: 1;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            z-index: 100;
+        }
+
+        .dropdown-selected {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .dropdown-selected:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .custom-dropdown.open .dropdown-selected {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .dropdown-arrow {
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--text-secondary);
+            border-bottom: 2px solid var(--text-secondary);
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+            margin-top: -3px;
+        }
+
+        .custom-dropdown.open .dropdown-arrow {
+            transform: rotate(-135deg);
+            margin-top: 3px;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: rgb(24, 9, 12);
+            backdrop-filter: blur(135px);
+            -webkit-backdrop-filter: blur(500px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.98);
+            transition: var(--transition);
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+        }
+
+        .custom-dropdown.open .dropdown-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .dropdown-option {
+            padding: 14px 20px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .dropdown-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-option.active {
+            background: rgba(136, 0, 0, 0.3);
+        }
+
+        .dropdown-option.active::before {
+            content: '✓';
+            position: absolute;
+            right: 20px;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+        }
+
+        /* 
+         * SEARCH BUTTON 
+         */
+        .search-btn {
+            flex: 0 0 auto;
+            padding: 16px 32px;
+            border: none;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow:
+                0 8px 24px rgba(136, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            transform: translateY(-2px);
+        }
+
+        .search-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Shine effect */
+        .search-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .search-btn:hover::after {
+            left: 100%;
+        }
+
+        .search-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 
+         * MOBILE RESPONSIVENESS 
+         */
+        @media (max-width: 600px) {
+            .glass-container {
+                padding: 28px 24px;
+            }
+
+            input[type="text"] {
+                padding: 18px 20px;
+                font-size: 1rem;
+            }
+
+            .controls-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .dropdown-selected,
+            .search-btn {
+                padding: 16px 20px;
+            }
+
+            .orb {
+                opacity: 0.3;
+            }
+        }
+
+        /* 
+         * SUBTLE GLOW EFFECT ON CONTAINER 
+         */
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 20%;
+            right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            border-radius: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="customCursor"></div>
+
+    <!-- Mesh Gradient Background -->
+    <div class="mesh-background"></div>
+
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Glass Container -->
+    <div class="glass-container" id="glassContainer">
+        <div class="glass-shine" id="glassShine"></div>
+        <div class="input-wrapper">
+            <input type="text" id="searchInput" placeholder="Search anything..." autofocus>
+        </div>
+
+        <div class="controls-row">
+            <!-- Custom Dropdown -->
+            <div class="custom-dropdown" id="engineDropdown">
+                <div class="dropdown-selected">
+                    <span id="selectedEngine">Google</span>
+                    <div class="dropdown-arrow"></div>
+                </div>
+                <div class="dropdown-options">
+                    <div class="dropdown-option active" data-value="google">Google</div>
+                    <div class="dropdown-option" data-value="bing">Bing</div>
+                    <div class="dropdown-option" data-value="duckduckgo">DuckDuckGo</div>
+                    <div class="dropdown-option" data-value="youtube">YouTube</div>
+                    <div class="dropdown-option" data-value="wikipedia">Wikipedia</div>
+                </div>
+            </div>
+
+            <button class="search-btn" id="searchBtn">
+                <span>Search</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const dropdown = document.getElementById('engineDropdown');
+            const selectedEngine = document.getElementById('selectedEngine');
+            const options = document.querySelectorAll('.dropdown-option');
+
+            let currentEngine = 'google';
+
+            // Search Engine URLs
+            const engineUrls = {
+                google: "https://www.google.com/search?q=",
+                bing: "https://www.bing.com/search?q=",
+                duckduckgo: "https://duckduckgo.com/?q=",
+                youtube: "https://www.youtube.com/results?search_query=",
+                wikipedia: "https://en.wikipedia.org/wiki/Special:Search?search="
+            };
+
+            // Toggle Dropdown
+            dropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+
+            // Select Option
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    // Update active state
+                    options.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+
+                    // Update selected text
+                    currentEngine = option.dataset.value;
+                    selectedEngine.textContent = option.textContent;
+
+                    // Close dropdown
+                    dropdown.classList.remove('open');
+
+                    // Focus back to input
+                    searchInput.focus();
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                dropdown.classList.remove('open');
+            });
+
+            // Execute Search
+            function executeSearch() {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    searchInput.focus();
+                    return;
+                }
+
+                const baseUrl = engineUrls[currentEngine];
+                if (baseUrl) {
+                    window.location.href = baseUrl + encodeURIComponent(query);
+                }
+            }
+
+            // Button Click
+            searchBtn.addEventListener('click', executeSearch);
+
+            // Enter Key
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    executeSearch();
+                }
+            });
+
+            // Custom Cursor
+            const cursor = document.getElementById('customCursor');
+            const glassContainer = document.getElementById('glassContainer');
+            const glassShine = document.getElementById('glassShine');
+
+            document.addEventListener('mousemove', (e) => {
+                // Move custom cursor
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+
+                // Glass shine effect
+                const rect = glassContainer.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                glassShine.style.setProperty('--mouse-x', x + '%');
+                glassShine.style.setProperty('--mouse-y', y + '%');
+            });
+
+            // Cursor hover effect on interactive elements
+            const interactiveElements = document.querySelectorAll('input, button, .custom-dropdown, .dropdown-option');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            });
+        });
+    </script>
+
+    <!-- Particles.js Library -->
+    <script src="particles.js-master/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": ["#880000", "#aa2222", "#ffffff"]
+                },
+                "shape": {
+                    "type": "circle"
+                },
+                "opacity": {
+                    "value": 0.6,
+                    "random": true,
+                    "anim": {
+                        "enable": true,
+                        "speed": 1,
+                        "opacity_min": 0.2,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#880000",
+                    "opacity": 0.3,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "window",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 250,
+                        "line_linked": {
+                            "opacity": 0.8
+                        }
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+</body>
+
+</html>
