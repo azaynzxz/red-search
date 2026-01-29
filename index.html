@@ -7,23 +7,27 @@
     <title>Search Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* 
          * APPLE LIQUID GLASS / VISIONOS AESTHETIC
          */
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.25);
-            --glass-blur: 25px;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+            --glass-blur: 40px;
             --accent-color: #880000;
             --text-primary: rgba(255, 255, 255, 0.95);
             --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
             --radius-lg: 24px;
             --radius-md: 16px;
             --radius-sm: 12px;
+            --radius-pill: 50px;
             --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
         * {
@@ -35,54 +39,23 @@
         html,
         body {
             height: 100%;
+            overflow: hidden;
+            /* Prevent scrolling */
         }
 
         body {
             font-family: var(--font-stack);
-            min-height: 100vh;
+            background: #000;
+            color: var(--text-primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            overflow: hidden;
             position: relative;
-            cursor: none;
-        }
-
-        /* Custom Cursor */
-        .custom-cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
-            mix-blend-mode: screen;
-        }
-
-        .custom-cursor::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-        }
-
-        .custom-cursor.hovering {
-            width: 40px;
-            height: 40px;
-            background: rgba(136, 0, 0, 0.5);
         }
 
         /* 
-         * DARK + MAROON GRADIENT BACKGROUND 
+         * BACKGROUNDS 
          */
         .mesh-background {
             position: fixed;
@@ -92,12 +65,11 @@
             height: 100%;
             z-index: -2;
             background:
-                radial-gradient(ellipse at 70% 20%, rgba(136, 0, 0, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse at 20% 80%, rgba(136, 0, 0, 0.25) 0%, transparent 45%),
-                linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 25%, #150808 50%, #0d0d0d 100%);
+                radial-gradient(circle at 15% 50%, rgba(136, 0, 0, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(136, 0, 0, 0.1), transparent 25%),
+                linear-gradient(180deg, #050505 0%, #1a0505 40%, #0f0202 100%);
         }
 
-        /* Particles Container */
         #particles-js {
             position: fixed;
             top: 0;
@@ -105,528 +77,1599 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         /* 
-         * GLASS CONTAINER 
+         * MAIN LAYOUT 
          */
-        .glass-container {
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             width: 100%;
-            max-width: 580px;
+            max-width: 800px;
+            transition: var(--transition);
+        }
+
+        .main-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        /* 
+         * CLOCK & GREETING
+         */
+        .header-widget {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .clock-time {
+            font-size: 5rem;
+            font-weight: 200;
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            line-height: 1;
+        }
+
+        .greeting {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        /* 
+         * SEARCH COMPONENT 
+         */
+        .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
-            padding: 40px;
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            animation: containerAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            transform: translateY(30px);
-            opacity: 0;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: visible;
+        }
+
+        .search-container {
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: var(--radius-lg);
+            /* Match panel */
+        }
+
+        .search-input-wrapper {
+            flex: 1;
             position: relative;
         }
 
-        .glass-shine {
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            padding: 16px;
+            font-family: var(--font-stack);
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Dropdown */
+        .engine-select {
+            position: relative;
+        }
+
+        .engine-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            min-width: 140px;
+            user-select: none;
+        }
+
+        .engine-trigger:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .engine-menu {
             position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 180px;
+            background: rgba(20, 10, 10, 0.95);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(20px);
+            padding: 6px;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: var(--transition);
+            z-index: 9999;
+        }
+
+        .engine-menu.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .engine-option {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .engine-option:hover,
+        .engine-option.selected {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .engine-option.selected {
+            background: var(--accent-color);
+        }
+
+        /* Search Button */
+        .search-btn {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-color);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(136, 0, 0, 0.4);
+        }
+
+        /* 
+         * DOCK
+         */
+        .dock-wrapper {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .dock-wrapper.hidden {
+            transform: translate(-50%, 150%);
+            pointer-events: none;
+        }
+
+        .dock {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .dock-item {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .dock-item:hover {
+            width: 64px;
+            height: 64px;
+            margin: 0 8px;
+            /* Push neighbors */
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            transform: translateY(-15px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .dock-item.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Special Styling for Pinned Bookmarks in Dock (The "Real App" Look) */
+        .dock-item.dock-app {
+            background: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 12px;
+            /* Squeezes the icon inside */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .dock-item.dock-app img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            /* Slight rounding on the icon image itself */
+            pointer-events: none;
+        }
+
+        .dock-item.dock-app:hover {
+            background: #ffffff;
+            /* Keep white on hover */
+            transform: translateY(-15px) scale(1.1);
+            /* Scale up slightly more */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Widget Tools (keep dark/glass) */
+        .dock-item.action-widget {
+            /* Existing dark glass style */
+        }
+
+        .dock-item .tooltip {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            color: white;
+            font-weight: 500;
+        }
+
+        .dock-item:hover .tooltip {
+            opacity: 1;
+        }
+
+        .dock-sep {
+            width: 1px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 0 4px;
+        }
+
+        /* 
+         * WIDGETS OVERLAY SYSTEM 
+         */
+        .widgets-layer {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 0;
+            z-index: 500;
+        }
+
+        .widget-panel {
+            position: absolute;
+            background: rgba(22, 22, 22, 0.85);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-
-        .glass-container:hover .glass-shine {
-            opacity: 1;
-        }
-
-        @keyframes containerAppear {
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* 
-         * SEARCH INPUT 
-         */
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 24px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 20px 24px;
-            font-family: var(--font-stack);
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: var(--radius-md);
-            outline: none;
+            padding: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            pointer-events: none;
             transition: var(--transition);
-        }
-
-        input[type="text"]::placeholder {
-            color: var(--text-secondary);
-        }
-
-        input[type="text"]:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        input[type="text"]:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent-color);
-            box-shadow:
-                0 0 0 4px rgba(136, 0, 0, 0.25),
-                0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 
-         * CONTROLS ROW 
-         */
-        .controls-row {
             display: flex;
-            gap: 12px;
-            align-items: stretch;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: 80vh;
         }
 
-        /* 
-         * CUSTOM DROPDOWN 
-         */
-        .custom-dropdown {
-            flex: 1;
-            position: relative;
-            cursor: pointer;
+        .widget-panel.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: move;
             user-select: none;
-            z-index: 100;
         }
 
-        .dropdown-selected {
+        /* Remove transition during drag for smoothness */
+        .widget-panel.dragging {
+            transition: none;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            z-index: 1000 !important;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .widget-title {
+            font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            transition: var(--transition);
+            gap: 8px;
         }
 
-        .dropdown-selected:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
+        .close-widget {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
         }
 
-        .custom-dropdown.open .dropdown-selected {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .dropdown-arrow {
-            width: 8px;
-            height: 8px;
-            border-right: 2px solid var(--text-secondary);
-            border-bottom: 2px solid var(--text-secondary);
-            transform: rotate(45deg);
-            transition: transform 0.3s ease;
-            margin-top: -3px;
-        }
-
-        .custom-dropdown.open .dropdown-arrow {
-            transform: rotate(-135deg);
-            margin-top: 3px;
-        }
-
-        .dropdown-options {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            right: 0;
-            background: rgb(24, 9, 12);
-            backdrop-filter: blur(135px);
-            -webkit-backdrop-filter: blur(500px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-md);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px) scale(0.98);
-            transition: var(--transition);
-            box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            overflow: hidden;
-        }
-
-        .custom-dropdown.open .dropdown-options {
+        .close-widget:hover {
             opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
-
-        .dropdown-option {
-            padding: 14px 20px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .dropdown-option:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .dropdown-option.active {
-            background: rgba(136, 0, 0, 0.3);
-        }
-
-        .dropdown-option.active::before {
-            content: '✓';
-            position: absolute;
-            right: 20px;
-            font-size: 0.85rem;
             color: var(--accent-color);
         }
 
-        /* 
-         * SEARCH BUTTON 
-         */
-        .search-btn {
-            flex: 0 0 auto;
-            padding: 16px 32px;
-            border: none;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-primary);
-            font-family: var(--font-stack);
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
+        /* Widget Specific Styles */
+
+        /* Weather */
+        .weather-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
-        .search-btn:hover {
+        .weather-temp {
+            font-size: 3.5rem;
+            font-weight: 200;
+        }
+
+        .weather-icon {
+            font-size: 4rem;
+            margin: 10px 0;
+        }
+
+        .weather-loc {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Notes */
+        .notes-area {
+            width: 300px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            padding: 15px;
+            font-family: var(--font-stack);
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .notes-area:focus {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Pomodoro / Clock Widget */
+        .clock-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .clock-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .clock-tab.active {
+            color: white;
+            border-bottom-color: var(--accent-color);
+        }
+
+        .clock-view {
+            display: none;
+        }
+
+        .clock-view.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .timer-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            position: relative;
+            background: conic-gradient(var(--accent-color) var(--progress, 0%), transparent 0%);
+        }
+
+        .timer-inner {
+            width: 160px;
+            height: 160px;
+            background: #161616;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 300;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .timer-modes {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-color);
+        }
+
+        /* Generic Timer Inputs */
+        .timer-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .timer-input {
+            width: 60px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .timer-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Stopwatch */
+        .stopwatch-display {
+            font-size: 3.5rem;
+            text-align: center;
+            font-weight: 200;
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+
+        /* Todo */
+        .todo-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 5px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .todo-item.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .todo-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+        }
+
+        .todo-check.checked {
             background: var(--accent-color);
             border-color: var(--accent-color);
-            box-shadow:
-                0 8px 24px rgba(136, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            transform: translateY(-2px);
         }
 
-        .search-btn:active {
-            transform: translateY(0) scale(0.98);
+        .todo-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
-        /* Shine effect */
-        .search-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        /* Calculator */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 240px;
+        }
+
+        .calc-btn {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .calc-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calc-btn.accent {
+            background: var(--accent-color);
+        }
+
+        .calc-display {
+            grid-column: span 4;
+            background: transparent;
+            color: white;
+            font-size: 2.5rem;
+            text-align: right;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Ambient Sounds */
+        .sound-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 300px;
+        }
+
+        .sound-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .sound-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sound-card.active {
+            border-color: var(--accent-color);
+            background: rgba(136, 0, 0, 0.1);
+        }
+
+        .vol-slider {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.2),
-                    transparent);
-            transition: left 0.5s ease;
+            margin-top: 8px;
+            accent-color: var(--accent-color);
         }
 
-        .search-btn:hover::after {
-            left: 100%;
+        /* Manager Widget (formerly Bookmarks Widget) */
+        .bookmark-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
         }
 
-        .search-btn span {
+        .bookmark-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: default;
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
             position: relative;
-            z-index: 1;
         }
 
-        /* 
-         * MOBILE RESPONSIVENESS 
-         */
-        @media (max-width: 600px) {
-            .glass-container {
-                padding: 28px 24px;
-            }
-
-            input[type="text"] {
-                padding: 18px 20px;
-                font-size: 1rem;
-            }
-
-            .controls-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .dropdown-selected,
-            .search-btn {
-                padding: 16px 20px;
-            }
-
-            .orb {
-                opacity: 0.3;
-            }
-        }
-
-        /* 
-         * SUBTLE GLOW EFFECT ON CONTAINER 
-         */
-        .glass-container::before {
-            content: '';
+        .bm-delete-btn {
             position: absolute;
-            top: -1px;
-            left: 20%;
-            right: 20%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-            border-radius: 100%;
+            top: -5px;
+            right: -5px;
+            background: #cc0000;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Common Button Styles */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Focus Mode Banner */
+        .focus-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .focus-banner.active {
+            opacity: 1;
         }
     </style>
 </head>
 
 <body>
-    <!-- Custom Cursor -->
-    <div class="custom-cursor" id="customCursor"></div>
 
-    <!-- Mesh Gradient Background -->
-    <div class="mesh-background"></div>
-
-    <!-- Particles Background -->
+    <!-- Backgrounds -->
+    <div class="mesh-background" id="meshBg"></div>
     <div id="particles-js"></div>
 
-    <!-- Glass Container -->
-    <div class="glass-container" id="glassContainer">
-        <div class="glass-shine" id="glassShine"></div>
-        <div class="input-wrapper">
-            <input type="text" id="searchInput" placeholder="Search anything..." autofocus>
+    <!-- Focus Mode Hint -->
+    <div class="focus-banner" id="focusBanner">Focus Mode Active (Press 'F' to exit)</div>
+
+    <!-- Main Content -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- Header -->
+        <div class="header-widget">
+            <div class="clock-time" id="clock">00:00</div>
+            <div class="greeting" id="greeting">Good Morning</div>
         </div>
 
-        <div class="controls-row">
-            <!-- Custom Dropdown -->
-            <div class="custom-dropdown" id="engineDropdown">
-                <div class="dropdown-selected">
-                    <span id="selectedEngine">Google</span>
-                    <div class="dropdown-arrow"></div>
+        <!-- Search Bar -->
+        <div class="glass-panel">
+            <div class="search-container">
+                <div class="engine-select" id="engineSelect">
+                    <div class="engine-trigger">
+                        <span class="material-icons" id="currentEngineIcon">search</span>
+                        <span id="currentEngineName">Google</span>
+                        <span class="material-icons" style="font-size: 16px; margin-left: auto;">expand_more</span>
+                    </div>
+                    <div class="engine-menu">
+                        <div class="engine-option selected" data-engine="google" data-icon="search">
+                            <span class="material-icons">search</span> Google
+                        </div>
+                        <div class="engine-option" data-engine="bing" data-icon="search">
+                            <span class="material-icons">search</span> Bing
+                        </div>
+                        <div class="engine-option" data-engine="duckduckgo" data-icon="security">
+                            <span class="material-icons">security</span> DuckDuckGo
+                        </div>
+                        <div class="engine-option" data-engine="youtube" data-icon="play_circle">
+                            <span class="material-icons">play_circle</span> YouTube
+                        </div>
+                        <div class="engine-option" data-engine="wikipedia" data-icon="menu_book">
+                            <span class="material-icons">menu_book</span> Wikipedia
+                        </div>
+                    </div>
                 </div>
-                <div class="dropdown-options">
-                    <div class="dropdown-option active" data-value="google">Google</div>
-                    <div class="dropdown-option" data-value="bing">Bing</div>
-                    <div class="dropdown-option" data-value="duckduckgo">DuckDuckGo</div>
-                    <div class="dropdown-option" data-value="youtube">YouTube</div>
-                    <div class="dropdown-option" data-value="wikipedia">Wikipedia</div>
-                </div>
-            </div>
 
-            <button class="search-btn" id="searchBtn">
-                <span>Search</span>
-            </button>
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search the web..." autofocus>
+                </div>
+
+                <button class="search-btn" id="searchBtn">
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Widgets Layer -->
+    <div class="widgets-layer" id="widgetsLayer">
+
+        <!-- Weather -->
+        <div class="widget-panel" id="widget-weather" style="bottom: 120px; left: 20px;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">thermostat</span> Weather</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <div class="weather-info">
+                <div class="weather-icon" id="weatherIcon">☁️</div>
+                <div class="weather-temp" id="weatherTemp">--°</div>
+                <div class="weather-loc" id="weatherLoc">Detecting...</div>
+                <input type="text" class="input-glass" style="text-align:center" placeholder="City Name" id="cityInput">
+            </div>
+        </div>
+
+        <!-- Calculator -->
+        <div class="widget-panel" id="widget-calc" style="bottom: 120px; right: 20px;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">calculate</span> Calculator</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-grid" id="calcKeys"></div>
+        </div>
+
+        <!-- Notes -->
+        <div class="widget-panel" id="widget-notes" style="top: 100px; left: 50px;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">edit_note</span> Notes</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <textarea class="notes-area" id="notesArea" placeholder="Type your thoughts here..."></textarea>
+            <div style="text-align: right; margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);">Auto-saved
+            </div>
+        </div>
+
+        <!-- Todo -->
+        <div class="widget-panel" id="widget-todo" style="top: 100px; right: 50px; width: 300px;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">check_circle</span> To-Do</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <div class="todo-input-group">
+                <input type="text" class="input-glass" id="todoInput" placeholder="New task...">
+                <button class="btn btn-primary" id="addTodoBtn">+</button>
+            </div>
+            <div class="todo-list" id="todoList"></div>
+        </div>
+
+        <!-- Clock Widget -->
+        <div class="widget-panel" id="widget-timer"
+            style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">timer</span> Clock</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+
+            <div class="clock-tabs">
+                <div class="clock-tab active" data-tab="focus">Focus</div>
+                <div class="clock-tab" data-tab="timer">Timer</div>
+                <div class="clock-tab" data-tab="stopwatch">Stopwatch</div>
+            </div>
+
+            <!-- Focus View -->
+            <div id="view-focus" class="clock-view active">
+                <div class="timer-modes">
+                    <button class="mode-btn active" data-time="25">Focus</button>
+                    <button class="mode-btn" data-time="5">Short</button>
+                    <button class="mode-btn" data-time="15">Long</button>
+                </div>
+                <div class="timer-circle" id="timerCircle">
+                    <div class="timer-inner">
+                        <div class="timer-display" id="timerDisplay">25:00</div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="timerStartBtn">Start</button>
+                    <button class="btn btn-glass" id="timerResetBtn">Reset</button>
+                </div>
+            </div>
+
+            <!-- Timer View -->
+            <div id="view-timer" class="clock-view">
+                <div class="timer-input-group">
+                    <div><input type="number" class="timer-input" id="tHours" placeholder="00" min="0" max="99">
+                        <div class="timer-label">H</div>
+                    </div>
+                    <div><input type="number" class="timer-input" id="tMins" placeholder="00" min="0" max="59">
+                        <div class="timer-label">M</div>
+                    </div>
+                    <div><input type="number" class="timer-input" id="tSecs" placeholder="00" min="0" max="59">
+                        <div class="timer-label">S</div>
+                    </div>
+                </div>
+                <div id="customTimerDisplay" class="timer-display"
+                    style="text-align:center; display:none; margin: 30px 0;">00:00:00</div>
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="ctStartBtn">Start</button>
+                    <button class="btn btn-glass" id="ctResetBtn">Reset</button>
+                </div>
+            </div>
+
+            <!-- Stopwatch View -->
+            <div id="view-stopwatch" class="clock-view">
+                <div class="stopwatch-display" id="swDisplay">00:00.00</div>
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="swStartBtn">Start</button>
+                    <button class="btn btn-glass" id="swResetBtn">Reset</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Ambient Sounds -->
+        <div class="widget-panel" id="widget-sounds" style="bottom: 120px; left: 30%;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">headphones</span> Ambience</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <div class="sound-grid">
+                <div class="sound-card" data-sound="rain"><span class="material-icons">water_drop</span>
+                    <div>Rain</div><input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.5">
+                </div>
+                <div class="sound-card" data-sound="cafe"><span class="material-icons">storefront</span>
+                    <div>Cafe</div><input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.5">
+                </div>
+                <div class="sound-card" data-sound="fire"><span class="material-icons">local_fire_department</span>
+                    <div>Fire</div><input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.5">
+                </div>
+                <div class="sound-card" data-sound="wind"><span class="material-icons">air</span>
+                    <div>Wind</div><input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.5">
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmark Manager -->
+        <div class="widget-panel" id="widget-bookmarks" style="bottom: 120px; right: 25%;">
+            <div class="widget-header">
+                <div class="widget-title"><span class="material-icons">edit</span> Manage Apps</div>
+                <span class="material-icons close-widget">close</span>
+            </div>
+            <div class="bookmark-grid" id="bookmarkPreviewGrid">
+                <!-- Preview list for deletion -->
+            </div>
+            <div class="todo-input-group" style="margin-top: 10px;">
+                <input type="text" class="input-glass" id="bmUrlInput" placeholder="example.com">
+                <input type="text" class="input-glass" id="bmNameInput" placeholder="Name" style="width: 80px;">
+            </div>
+            <div class="todo-input-group">
+                <input type="text" class="input-glass" id="bmIconInput" placeholder="Icon URL (optional)">
+                <button class="btn btn-primary" id="addBmBtn">+</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Dock -->
+    <div class="dock-wrapper" id="dockWrapper">
+        <div class="dock">
+
+            <!-- Dynamic Pinned Apps -->
+            <div id="dock-pinned-apps" style="display:contents">
+                <!-- Javascript will inject <div class="dock-item dock-app">...</div> here -->
+            </div>
+
+            <div class="dock-sep"></div>
+
+            <!-- Widget Tools -->
+            <div class="dock-item action-widget" data-target="weather">
+                <span class="material-icons">thermostat</span>
+                <div class="tooltip">Weather</div>
+            </div>
+            <div class="dock-item action-widget" data-target="timer">
+                <span class="material-icons">timer</span>
+                <div class="tooltip">Focus</div>
+            </div>
+            <div class="dock-item action-widget" data-target="notes">
+                <span class="material-icons">edit_note</span>
+                <div class="tooltip">Notes</div>
+            </div>
+            <div class="dock-item action-widget" data-target="todo">
+                <span class="material-icons">check_circle</span>
+                <div class="tooltip">To-Do</div>
+            </div>
+            <div class="dock-item action-widget" data-target="calc">
+                <span class="material-icons">calculate</span>
+                <div class="tooltip">Calc</div>
+            </div>
+            <div class="dock-item action-widget" data-target="sounds">
+                <span class="material-icons">headphones</span>
+                <div class="tooltip">Sounds</div>
+            </div>
+
+            <div class="dock-sep"></div>
+
+            <!-- Manage Button -->
+            <div class="dock-item action-widget" data-target="bookmarks">
+                <span class="material-icons">add</span>
+                <div class="tooltip">Add App</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="particles.js-master/particles.min.js"></script>
     <script>
+        // Service Worker
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+
         document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
-            const dropdown = document.getElementById('engineDropdown');
-            const selectedEngine = document.getElementById('selectedEngine');
-            const options = document.querySelectorAll('.dropdown-option');
+            const state = { engine: localStorage.getItem('s_engine') || 'google', focusMode: false };
 
-            let currentEngine = 'google';
+            // --- NAVIGATION APPS / BOOKMARKS ---
+            let pinnedApps = JSON.parse(localStorage.getItem('pinned_apps')) || [
+                { name: 'Gmail', url: 'https://mail.google.com' },
+                { name: 'GitHub', url: 'https://github.com' },
+                { name: 'Twitter', url: 'https://twitter.com' },
+                { name: 'YouTube', url: 'https://youtube.com' }
+            ];
+            let editingIndex = -1;
+            const urlInput = document.getElementById('bmUrlInput');
+            const nameInput = document.getElementById('bmNameInput');
+            const addBtn = document.getElementById('addBmBtn');
 
-            // Search Engine URLs
-            const engineUrls = {
-                google: "https://www.google.com/search?q=",
-                bing: "https://www.bing.com/search?q=",
-                duckduckgo: "https://duckduckgo.com/?q=",
-                youtube: "https://www.youtube.com/results?search_query=",
-                wikipedia: "https://en.wikipedia.org/wiki/Special:Search?search="
+            const renderDockApps = () => {
+                const dockContainer = document.getElementById('dock-pinned-apps');
+                const previewContainer = document.getElementById('bookmarkPreviewGrid');
+
+                dockContainer.innerHTML = '';
+                previewContainer.innerHTML = '';
+
+                pinnedApps.forEach((app, index) => {
+                    // 1. Render in Dock
+                    // Priority: Custom Icon -> Clearbit -> Google Favicon
+                    let iconUrl = app.customIcon || `https://logo.clearbit.com/${new URL(app.url).hostname}`;
+
+                    const dockItem = document.createElement('div');
+                    dockItem.className = 'dock-item dock-app';
+                    dockItem.onclick = () => window.location.href = app.url;
+
+                    // Fallback logic requires img onerror. 
+                    // If custom icon fails, go to Clearbit? No, too complex chain for onerror inline.
+                    // Simplest: If custom exists, use it. If not, use Clearbit.
+                    // On error of whatever is chosen -> filter to Google.
+
+                    if (app.customIcon) {
+                        dockItem.innerHTML = `
+                            <img src="${app.customIcon}" onerror="this.src='https://www.google.com/s2/favicons?domain=${app.url}&sz=64'">
+                            <div class="tooltip">${app.name}</div>
+                        `;
+                    } else {
+                        dockItem.innerHTML = `
+                            <img src="https://logo.clearbit.com/${new URL(app.url).hostname}" onerror="this.src='https://www.google.com/s2/favicons?domain=${app.url}&sz=64'">
+                            <div class="tooltip">${app.name}</div>
+                        `;
+                    }
+
+                    dockContainer.appendChild(dockItem);
+
+                    // 2. Render in Manager (for editing/deletion)
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'bookmark-preview';
+                    previewItem.style.cursor = 'pointer';
+                    // Highlight if currently editing this one
+                    if (index === editingIndex) previewItem.style.border = '1px solid var(--accent-color)';
+
+                    previewItem.innerHTML = `
+                         <img src="${iconUrl}" onerror="this.src='https://www.google.com/s2/favicons?domain=${app.url}&sz=64'" style="width:32px; height:32px; border-radius:6px;">
+                         <span style="font-size:0.8rem">${app.name}</span>
+                         <div class="bm-delete-btn"><span class="material-icons">close</span></div>
+                    `;
+
+                    // Edit Click
+                    previewItem.onclick = (e) => {
+                        if (e.target.closest('.bm-delete-btn')) return;
+                        editingIndex = index;
+                        urlInput.value = app.url;
+                        nameInput.value = app.name;
+                        // Populate icon input
+                        document.getElementById('bmIconInput').value = app.customIcon || '';
+
+                        addBtn.innerHTML = '<span class="material-icons">save</span>'; // Change to save icon
+                        renderDockApps(); // Re-render to show selection border
+                    };
+
+                    // Delete Click
+                    previewItem.querySelector('.bm-delete-btn').onclick = (e) => {
+                        e.stopPropagation();
+                        pinnedApps.splice(index, 1);
+                        if (editingIndex === index) resetEdit();
+                        else if (editingIndex > index) editingIndex--; // shift index
+                        saveApps();
+                    };
+                    previewContainer.appendChild(previewItem);
+                });
             };
 
-            // Toggle Dropdown
-            dropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('open');
-            });
+            const resetEdit = () => {
+                editingIndex = -1;
+                urlInput.value = '';
+                nameInput.value = '';
+                document.getElementById('bmIconInput').value = '';
+                addBtn.innerHTML = '+';
+            };
 
-            // Select Option
-            options.forEach(option => {
-                option.addEventListener('click', (e) => {
-                    e.stopPropagation();
+            const saveApps = () => {
+                localStorage.setItem('pinned_apps', JSON.stringify(pinnedApps));
+                renderDockApps();
+            };
 
-                    // Update active state
-                    options.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
+            addBtn.onclick = () => {
+                let url = urlInput.value.trim();
+                const name = nameInput.value.trim();
+                const icon = document.getElementById('bmIconInput').value.trim();
 
-                    // Update selected text
-                    currentEngine = option.dataset.value;
-                    selectedEngine.textContent = option.textContent;
+                if (url && name) {
+                    if (!url.startsWith('http')) url = 'https://' + url;
 
-                    // Close dropdown
-                    dropdown.classList.remove('open');
+                    const appData = { name, url, customIcon: icon };
 
-                    // Focus back to input
-                    searchInput.focus();
+                    if (editingIndex >= 0) {
+                        // Update existing
+                        pinnedApps[editingIndex] = appData;
+                        resetEdit();
+                    } else {
+                        // Add new
+                        pinnedApps.push(appData);
+                        urlInput.value = '';
+                        nameInput.value = '';
+                        document.getElementById('bmIconInput').value = '';
+                    }
+                    saveApps();
+                }
+            };
+            renderDockApps();
+
+
+            // --- GENERAL UI LOGIC ---
+            let maxZ = 500;
+            const toggleWidget = (id) => {
+                const el = document.getElementById(`widget-${id}`);
+                const isActive = el.classList.contains('active');
+
+                // We no longer close others. Multiple allow.
+
+                if (!isActive) {
+                    el.classList.add('active');
+                    el.style.zIndex = ++maxZ; // Bring to front
+                    document.querySelector(`.dock-item[data-target="${id}"]`)?.classList.add('active');
+                } else {
+                    // If already active, just bring to front
+                    el.style.zIndex = ++maxZ;
+                }
+            };
+
+            // Bring to front on click
+            document.querySelectorAll('.widget-panel').forEach(panel => {
+                panel.addEventListener('mousedown', () => {
+                    panel.style.zIndex = ++maxZ;
                 });
             });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', () => {
-                dropdown.classList.remove('open');
+            document.querySelectorAll('.close-widget').forEach(btn =>
+                btn.onclick = () => {
+                    const panel = btn.closest('.widget-panel');
+                    panel.classList.remove('active');
+                    const id = panel.id.replace('widget-', '');
+                    document.querySelector(`.dock-item[data-target="${id}"]`)?.classList.remove('active');
+                }
+            );
+            document.querySelectorAll('.action-widget').forEach(item =>
+                item.onclick = () => toggleWidget(item.dataset.target)
+            );
+
+            // Clock
+            const updateTime = () => {
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                const h = now.getHours();
+                document.getElementById('greeting').textContent = h < 12 ? 'Good Morning' : (h < 18 ? 'Good Afternoon' : 'Good Evening');
+            };
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // Search
+            const engines = {
+                google: { url: "https://www.google.com/search?q=", icon: "search", name: "Google" },
+                bing: { url: "https://www.bing.com/search?q=", icon: "search", name: "Bing" },
+                duckduckgo: { url: "https://duckduckgo.com/?q=", icon: "security", name: "DuckDuckGo" },
+                youtube: { url: "https://www.youtube.com/results?search_query=", icon: "play_circle", name: "YouTube" },
+                wikipedia: { url: "https://en.wikipedia.org/wiki/Special:Search?search=", icon: "menu_book", name: "Wikipedia" }
+            };
+
+            const updateEngine = (key) => {
+                const e = engines[key];
+                document.getElementById('currentEngineIcon').textContent = e.icon;
+                document.getElementById('currentEngineName').textContent = e.name;
+                state.engine = key;
+                localStorage.setItem('s_engine', key);
+                document.querySelectorAll('.engine-option').forEach(o => o.classList.toggle('selected', o.dataset.engine === key));
+            };
+            updateEngine(state.engine);
+
+            const engineMenu = document.querySelector('.engine-menu');
+            document.querySelector('.engine-trigger').onclick = (e) => { e.stopPropagation(); engineMenu.classList.toggle('active'); };
+            document.querySelectorAll('.engine-option').forEach(o => o.onclick = () => { updateEngine(o.dataset.engine); engineMenu.classList.remove('active'); });
+            window.onclick = () => engineMenu.classList.remove('active');
+
+            const doSearch = () => {
+                const q = document.getElementById('searchInput').value.trim();
+                if (q) window.location.href = engines[state.engine].url + encodeURIComponent(q);
+            };
+
+            // Shortcuts
+            const searchInput = document.getElementById('searchInput');
+            const shortcuts = { '/g': 'google', '/b': 'bing', '/d': 'duckduckgo', '/y': 'youtube', '/w': 'wikipedia' };
+            searchInput.addEventListener('input', (e) => {
+                const val = searchInput.value;
+                for (const [key, engine] of Object.entries(shortcuts)) {
+                    if (val.startsWith(key + ' ') || val === key) {
+                        updateEngine(engine);
+                        searchInput.value = val.replace(key, '').trim();
+                    }
+                }
             });
 
-            // Execute Search
-            function executeSearch() {
-                const query = searchInput.value.trim();
-                if (!query) {
-                    searchInput.focus();
-                    return;
-                }
+            document.getElementById('searchBtn').onclick = doSearch;
+            document.getElementById('searchInput').onkeypress = (e) => { if (e.key === 'Enter') doSearch(); };
 
-                const baseUrl = engineUrls[currentEngine];
-                if (baseUrl) {
-                    window.location.href = baseUrl + encodeURIComponent(query);
+            // Focus Mode
+            document.addEventListener('keydown', (e) => {
+                if (e.key.toLowerCase() === 'f' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    state.focusMode = !state.focusMode;
+                    const main = document.getElementById('mainContainer');
+                    const dock = document.getElementById('dockWrapper');
+                    const bg = document.getElementById('meshBg');
+                    const banner = document.getElementById('focusBanner');
+
+                    if (state.focusMode) {
+                        main.classList.add('hidden');
+                        dock.classList.add('hidden');
+                        document.querySelectorAll('.widget-panel').forEach(p => p.classList.remove('active'));
+                        bg.style.filter = 'grayscale(1) brightness(0.5)';
+                        banner.classList.add('active');
+                    } else {
+                        main.classList.remove('hidden');
+                        dock.classList.remove('hidden');
+                        bg.style.filter = 'none';
+                        banner.classList.remove('active');
+                    }
+                }
+            });
+
+            // Widget Implementations
+
+            // Weather
+            const cityInput = document.getElementById('cityInput');
+            const loadWeather = (city) => {
+                if (!city) return;
+                document.getElementById('weatherLoc').textContent = city;
+                document.getElementById('weatherTemp').textContent = Math.floor(Math.random() * (30 - 15) + 15) + "°";
+                localStorage.setItem('weather_city', city);
+            };
+            cityInput.value = localStorage.getItem('weather_city') || "";
+            if (cityInput.value) loadWeather(cityInput.value);
+            cityInput.addEventListener('change', () => loadWeather(cityInput.value));
+
+            // Calc
+            const keys = ['C', '%', '/', '*', '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '=', '0', '.'];
+            let calcExp = '';
+            const calcKeys = document.getElementById('calcKeys');
+            keys.forEach(k => {
+                const btn = document.createElement('button');
+                btn.className = 'calc-btn' + (['C', '=', '/', '*', '-', '+'].includes(k) ? ' accent' : '');
+                btn.textContent = k;
+                btn.onclick = () => {
+                    if (k === 'C') calcExp = '';
+                    else if (k === '=') { try { calcExp = eval(calcExp).toString(); } catch { calcExp = 'Error'; } }
+                    else calcExp += k;
+                    document.getElementById('calcDisplay').textContent = calcExp || '0';
+                };
+                calcKeys.appendChild(btn);
+            });
+
+            // Notes
+            const notes = document.getElementById('notesArea');
+            notes.value = localStorage.getItem('notes_content') || '';
+            notes.oninput = () => localStorage.setItem('notes_content', notes.value);
+
+            // Todo
+            let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+            // Migration: Ensure all have IDs
+            todos = todos.map(t => ({ ...t, id: t.id || Date.now() + Math.random() }));
+
+            const todoList = document.getElementById('todoList');
+
+            const renderTodos = () => {
+                todoList.innerHTML = '';
+
+                // Sort/Filter
+                const active = todos.filter(t => !t.done);
+                const completed = todos.filter(t => t.done);
+
+                active.forEach(t => todoList.appendChild(createTodoElement(t)));
+
+                if (completed.length > 0) {
+                    const divider = document.createElement('div');
+                    divider.style.cssText = 'font-size:0.8rem; color:var(--text-muted); margin:15px 0 5px 0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;';
+                    divider.textContent = 'Completed';
+                    todoList.appendChild(divider);
+
+                    completed.forEach(t => todoList.appendChild(createTodoElement(t)));
+                }
+            };
+
+            const createTodoElement = (t) => {
+                const el = document.createElement('div');
+                el.className = `todo-item ${t.done ? 'completed' : ''}`;
+                if (t.done) el.style.opacity = '0.6';
+
+                el.innerHTML = `
+                    <div class="todo-check ${t.done ? 'checked' : ''}">
+                        <span class="material-icons" style="font-size:14px;color:white">check</span>
+                    </div>
+                    <span style="flex:1">${t.text}</span>
+                    <span class="material-icons" style="cursor:pointer;opacity:0.5;font-size:16px">delete</span>
+                `;
+
+                // Toggle logic using ID
+                el.querySelector('.todo-check').onclick = () => {
+                    const item = todos.find(x => x.id === t.id);
+                    if (item) {
+                        item.done = !item.done;
+                        saveTodos();
+                    }
+                };
+
+                // Delete logic using ID
+                el.querySelector('.material-icons:last-child').onclick = () => {
+                    todos = todos.filter(x => x.id !== t.id);
+                    saveTodos();
+                };
+
+                return el;
+            };
+
+            const saveTodos = () => {
+                localStorage.setItem('todos', JSON.stringify(todos));
+                renderTodos();
+            };
+
+            document.getElementById('addTodoBtn').onclick = () => {
+                const val = document.getElementById('todoInput').value.trim();
+                // Add ID to new items
+                if (val) { todos.push({ text: val, done: false, id: Date.now() }); document.getElementById('todoInput').value = ''; saveTodos(); }
+            };
+            renderTodos();
+
+            // Clock Widget Logic
+
+            // Tabs
+            document.querySelectorAll('.clock-tab').forEach(tab => {
+                tab.onclick = () => {
+                    document.querySelectorAll('.clock-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.clock-view').forEach(v => v.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`view-${tab.dataset.tab}`).classList.add('active');
+                };
+            });
+
+            // 1. Focus (Pomodoro)
+            let pomoInt, pomoTime = 1500, pomoTotal = 1500, pomoRun = false;
+            const updatePomo = () => {
+                const m = Math.floor(pomoTime / 60).toString().padStart(2, '0'), s = (pomoTime % 60).toString().padStart(2, '0');
+                document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+                document.getElementById('timerCircle').style.setProperty('--progress', `${((pomoTotal - pomoTime) / pomoTotal) * 100}%`);
+            };
+            document.getElementById('timerStartBtn').onclick = function () {
+                if (pomoRun) { clearInterval(pomoInt); this.textContent = 'Start'; }
+                else {
+                    pomoInt = setInterval(() => {
+                        if (pomoTime > 0) { pomoTime--; updatePomo(); }
+                        else { new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); clearInterval(pomoInt); pomoRun = false; this.textContent = 'Start'; }
+                    }, 1000);
+                    this.textContent = 'Pause';
+                }
+                pomoRun = !pomoRun;
+            };
+            document.getElementById('timerResetBtn').onclick = () => { clearInterval(pomoInt); pomoRun = false; document.getElementById('timerStartBtn').textContent = 'Start'; pomoTime = pomoTotal; updatePomo(); };
+            document.querySelectorAll('.mode-btn').forEach(b => b.onclick = () => {
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active')); b.classList.add('active');
+                pomoTotal = b.dataset.time * 60; pomoTime = pomoTotal; updatePomo(); if (pomoRun) document.getElementById('timerResetBtn').click();
+            });
+
+            // 2. Custom Timer
+            let ctInt, ctTotal = 0, ctLeft = 0, ctRun = false;
+            const ctDisplay = document.getElementById('customTimerDisplay');
+            const ctInputs = document.querySelector('.timer-input-group');
+
+            const updateCt = () => {
+                const h = Math.floor(ctLeft / 3600).toString().padStart(2, '0');
+                const m = Math.floor((ctLeft % 3600) / 60).toString().padStart(2, '0');
+                const s = (ctLeft % 60).toString().padStart(2, '0');
+                ctDisplay.textContent = `${h}:${m}:${s}`;
+            };
+
+            document.getElementById('ctStartBtn').onclick = function () {
+                if (ctRun) {
+                    // Pause
+                    clearInterval(ctInt);
+                    ctRun = false;
+                    this.textContent = 'Resume';
+                } else {
+                    // Start or Resume
+                    if (ctLeft === 0 && this.textContent !== 'Resume') {
+                        // Read inputs
+                        const h = parseInt(document.getElementById('tHours').value) || 0;
+                        const m = parseInt(document.getElementById('tMins').value) || 0;
+                        const s = parseInt(document.getElementById('tSecs').value) || 0;
+                        ctTotal = (h * 3600) + (m * 60) + s;
+                        ctLeft = ctTotal;
+                        if (ctTotal <= 0) return;
+
+                        // Switch OK
+                        ctInputs.style.display = 'none';
+                        ctDisplay.style.display = 'block';
+                        updateCt();
+                    }
+
+                    ctInt = setInterval(() => {
+                        if (ctLeft > 0) {
+                            ctLeft--;
+                            updateCt();
+                        } else {
+                            new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
+                            clearInterval(ctInt);
+                            ctRun = false;
+                            this.textContent = 'Start';
+                            ctDisplay.style.display = 'none';
+                            ctInputs.style.display = 'flex';
+                        }
+                    }, 1000);
+                    ctRun = true;
+                    this.textContent = 'Pause';
+                }
+            };
+
+            document.getElementById('ctResetBtn').onclick = () => {
+                clearInterval(ctInt);
+                ctRun = false;
+                ctLeft = 0;
+                document.getElementById('ctStartBtn').textContent = 'Start';
+                ctDisplay.style.display = 'none';
+                ctInputs.style.display = 'flex';
+                document.querySelectorAll('.timer-input').forEach(i => i.value = '');
+            };
+
+            // 3. Stopwatch
+            let swInt, swTime = 0, swRun = false;
+            const updateSw = () => {
+                const m = Math.floor(swTime / 6000).toString().padStart(2, '0');
+                const s = Math.floor((swTime % 6000) / 100).toString().padStart(2, '0');
+                const ms = (swTime % 100).toString().padStart(2, '0');
+                document.getElementById('swDisplay').textContent = `${m}:${s}.${ms}`;
+            };
+
+            document.getElementById('swStartBtn').onclick = function () {
+                if (swRun) {
+                    clearInterval(swInt);
+                    this.textContent = 'Start';
+                } else {
+                    swInt = setInterval(() => { swTime++; updateSw(); }, 10);
+                    this.textContent = 'Pause';
+                }
+                swRun = !swRun;
+            };
+
+            document.getElementById('swResetBtn').onclick = () => {
+                clearInterval(swInt);
+                swRun = false;
+                swTime = 0;
+                document.getElementById('swStartBtn').textContent = 'Start';
+                updateSw();
+            };
+
+            // Sounds
+            const sounds = { rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg', cafe: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg', fire: 'https://actions.google.com/sounds/v1/ambiences/fireplace.ogg', wind: 'https://actions.google.com/sounds/v1/weather/wind_synthetic.ogg' };
+            const audios = {};
+            document.querySelectorAll('.sound-card').forEach(c => {
+                const type = c.dataset.sound;
+                const a = new Audio(sounds[type]); a.loop = true; audios[type] = a;
+                c.querySelector('.vol-slider').oninput = (e) => { e.stopPropagation(); a.volume = e.target.value; };
+                c.onclick = (e) => { if (e.target.tagName !== 'INPUT') { if (c.classList.contains('active')) { a.pause(); c.classList.remove('active'); } else { a.play(); c.classList.add('active'); } } };
+            });
+
+            // Particles
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": { "value": 100, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#ffffff" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.5, "random": true },
+                    "size": { "value": 4, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+                    "move": { "enable": true, "speed": 2, "out_mode": "out" }
+                },
+                "interactivity": {
+                    "detect_on": "window",
+                    "events": {
+                        "onhover": { "enable": true, "mode": "grab" },
+                        "onclick": { "enable": true, "mode": "push" }
+                    },
+                    "modes": {
+                        "grab": { "distance": 250, "line_linked": { "opacity": 1, "width": 2 } }
+                    }
+                }
+            });
+
+            // Draggable Widgets Logic
+            let isDragging = false;
+            let currentPath = null;
+            let initialX = 0;
+            let initialY = 0;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            document.querySelectorAll('.widget-header').forEach(header => {
+                header.onmousedown = dragStart;
+            });
+
+            function dragStart(e) {
+                if (e.target.classList.contains('close-widget')) return;
+
+                // Find parent panel
+                const panel = e.target.closest('.widget-panel');
+                currentPanel = panel;
+
+                // Get current position (computed style or offset)
+                // We need to parse the transform or use left/top
+                // Since we use left/top/bottom/right in CSS, it's mixed. 
+                // Let's set initial absolute position if not set
+                const rect = panel.getBoundingClientRect();
+
+                // Switch to fixed positioning calculated from top-left to avoid layout jumps
+                // Remove bottom/right props and enforce top/left
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+                panel.style.top = rect.top + 'px';
+                panel.style.left = rect.left + 'px';
+                panel.style.transform = 'none'; // reset transform scale
+
+                initialX = e.clientX - rect.left;
+                initialY = e.clientY - rect.top;
+
+                isDragging = true;
+                panel.classList.add('dragging');
+
+                document.onmouseup = dragEnd;
+                document.onmousemove = drag;
+            }
+
+            function drag(e) {
+                if (isDragging && currentPanel) {
+                    e.preventDefault();
+                    const x = e.clientX - initialX;
+                    const y = e.clientY - initialY;
+                    currentPanel.style.left = x + 'px';
+                    currentPanel.style.top = y + 'px';
                 }
             }
 
-            // Button Click
-            searchBtn.addEventListener('click', executeSearch);
+            function dragEnd() {
+                if (!currentPanel) return;
+                initialX = currentPanel.offsetLeft;
+                initialY = currentPanel.offsetTop;
+                isDragging = false;
+                currentPanel.classList.remove('dragging');
+                currentPanel = null;
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
 
-            // Enter Key
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    executeSearch();
-                }
-            });
-
-            // Custom Cursor
-            const cursor = document.getElementById('customCursor');
-            const glassContainer = document.getElementById('glassContainer');
-            const glassShine = document.getElementById('glassShine');
-
-            document.addEventListener('mousemove', (e) => {
-                // Move custom cursor
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-
-                // Glass shine effect
-                const rect = glassContainer.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                glassShine.style.setProperty('--mouse-x', x + '%');
-                glassShine.style.setProperty('--mouse-y', y + '%');
-            });
-
-            // Cursor hover effect on interactive elements
-            const interactiveElements = document.querySelectorAll('input, button, .custom-dropdown, .dropdown-option');
-            interactiveElements.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
-            });
-        });
-    </script>
-
-    <!-- Particles.js Library -->
-    <script src="particles.js-master/particles.min.js"></script>
-    <script>
-        particlesJS('particles-js', {
-            "particles": {
-                "number": {
-                    "value": 80,
-                    "density": {
-                        "enable": true,
-                        "value_area": 800
-                    }
-                },
-                "color": {
-                    "value": ["#880000", "#aa2222", "#ffffff"]
-                },
-                "shape": {
-                    "type": "circle"
-                },
-                "opacity": {
-                    "value": 0.6,
-                    "random": true,
-                    "anim": {
-                        "enable": true,
-                        "speed": 1,
-                        "opacity_min": 0.2,
-                        "sync": false
-                    }
-                },
-                "size": {
-                    "value": 3,
-                    "random": true,
-                    "anim": {
-                        "enable": false
-                    }
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150,
-                    "color": "#880000",
-                    "opacity": 0.3,
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 2,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false,
-                    "attract": {
-                        "enable": false
-                    }
-                }
-            },
-            "interactivity": {
-                "detect_on": "window",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "grab"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    },
-                    "resize": true
-                },
-                "modes": {
-                    "grab": {
-                        "distance": 250,
-                        "line_linked": {
-                            "opacity": 0.8
-                        }
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    }
-                }
-            },
-            "retina_detect": true
         });
     </script>
 </body>
