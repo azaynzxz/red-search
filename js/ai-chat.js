@@ -521,21 +521,11 @@ class GeminiAITerminal {
     }
 
     close() {
-        if (!this.terminal) return;
+        if (!this.terminal || this.isClosing) return;
         this.isOpen = false;
-        this.terminal.classList.remove('active');
-        document.body.classList.remove('ai-terminal-active');
+        this.isClosing = true;
 
-        if (this.searchZone) {
-            this.searchZone.classList.remove('morphed-to-ai');
-            this.searchZone.classList.remove('active-search');
-        }
-
-        if (this.heroSearchInput) {
-            this.heroSearchInput.value = '';
-        }
-        setEngineAIMode(false);
-
+        // Abort any in-flight generation immediately
         if (this.isGenerating && this.abortController) {
             this.abortController.abort();
             this.isGenerating = false;
@@ -544,6 +534,26 @@ class GeminiAITerminal {
             this.draftAbortController.abort();
             this.isDrafting = false;
         }
+
+        // Play reverse morph animation, then hide
+        this.terminal.classList.add('closing');
+
+        setTimeout(() => {
+            this.terminal.classList.remove('active');
+            this.terminal.classList.remove('closing');
+            document.body.classList.remove('ai-terminal-active');
+            this.isClosing = false;
+
+            if (this.searchZone) {
+                this.searchZone.classList.remove('morphed-to-ai');
+                this.searchZone.classList.remove('active-search');
+            }
+
+            if (this.heroSearchInput) {
+                this.heroSearchInput.value = '';
+            }
+            setEngineAIMode(false);
+        }, 310);
     }
 
     toggle(query = '') {

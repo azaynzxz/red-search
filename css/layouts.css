@@ -452,6 +452,24 @@ body.ai-terminal-active .ai-terminal-wrapper {
     }
 }
 
+@keyframes terminalMorphOut {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        max-height: 560px;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.94) translateY(18px);
+        max-height: 54px;
+    }
+}
+
+.ai-terminal-wrapper.closing {
+    animation: terminalMorphOut 0.32s cubic-bezier(0.4, 0, 1, 1) forwards;
+    pointer-events: none;
+}
+
 /* CRT Scanline Overlay */
 .ai-terminal-wrapper::before {
     content: '';
