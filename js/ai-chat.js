@@ -599,6 +599,7 @@ class GeminiAITerminal {
         const contents = this.history.slice(-10);
 
         let fullGeneratedText = '';
+        let isError = false;
 
         try {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.activeModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
@@ -669,24 +670,31 @@ class GeminiAITerminal {
             });
 
         } catch (err) {
+            isError = true;
             if (err.name === 'AbortError') {
+                isError = false;
                 fullGeneratedText += ' [Generation terminated by user]';
             } else {
-                streamContentEl.innerHTML = `<span class="terminal-error">SYSTEM EXCEPTION: ${this.escapeHTML(err.message)}</span>`;
+                console.error('[AI Terminal] submitQuery error:', err);
+                const errMsg = err.message || 'Unknown error';
+                streamContentEl.innerHTML = `<span class="terminal-error">SYSTEM EXCEPTION: ${this.escapeHTML(errMsg)}</span>`;
             }
         } finally {
             this.isGenerating = false;
             this.abortController = null;
             if (cursorEl) cursorEl.remove();
 
-            // Render final markdown and attach interactive copy buttons
-            streamContentEl.innerHTML = this.renderMarkdown(fullGeneratedText);
+            // Only re-render markdown if there was no error (error message should stay visible)
+            if (!isError) {
+                streamContentEl.innerHTML = this.renderMarkdown(fullGeneratedText);
+            }
+
             this.attachCodeCopyButtons(modelRow);
             this.attachFormulaCopyButtons(modelRow);
             this.attachCardCopyButtons(modelRow);
             this.attachRowCopyButton(modelRow, fullGeneratedText);
 
-            if (fullGeneratedText && fullGeneratedText.trim()) {
+            if (!isError && fullGeneratedText && fullGeneratedText.trim()) {
                 this.chatHistory.push({
                     role: 'model',
                     text: fullGeneratedText,
