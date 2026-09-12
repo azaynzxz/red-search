@@ -1093,14 +1093,17 @@ body.ai-terminal-active .ai-terminal-wrapper {
     display: flex;
     flex-direction: column;
     z-index: 20;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.28s ease;
+    opacity: 0;
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
 
 .draft-history-panel.open {
-    transform: translateX(0);
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .draft-history-header {
