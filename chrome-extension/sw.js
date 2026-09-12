@@ -1,4 +1,4 @@
-const CACHE_NAME = 'search-portal-v12';
+const CACHE_NAME = 'search-portal-v8';
 const ASSETS = [
     '/',
     '/index.html',
@@ -18,14 +18,12 @@ const ASSETS = [
     '/js/layouts.js',
     '/js/widgets.js',
     '/js/screensaver.js',
-    '/js/backgrounds.js',
     '/particles.js-master/particles.min.js',
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500&family=JetBrains+Mono:wght@400;500&display=swap',
     'https://fonts.googleapis.com/icon?family=Material+Icons'
 ];
 
 self.addEventListener('install', (e) => {
-    self.skipWaiting();
     e.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS).catch((err) => {
@@ -33,6 +31,7 @@ self.addEventListener('install', (e) => {
             });
         })
     );
+    self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
@@ -51,30 +50,23 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-    // Network first for same-origin resources so updates are immediate
-    if (e.request.url.startsWith(self.location.origin)) {
-        e.respondWith(
-            fetch(e.request).then((response) => {
-                if (response && response.status === 200 && response.type === 'basic') {
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
-                }
-                return response;
-            }).catch(() => caches.match(e.request))
-        );
-        return;
-    }
-
-    // Cache first with network fallback for external static assets (fonts, icons)
     e.respondWith(
         caches.match(e.request).then((response) => {
-            if (response) return response;
-            return fetch(e.request).then((networkRes) => {
-                if (networkRes && networkRes.status === 200) {
-                    const clone = networkRes.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+            if (response) {
+                return response;
+            }
+            return fetch(e.request).then((response) => {
+                // Cache Google Fonts resources dynamically
+                if (e.request.url.includes('fonts.googleapis.com') ||
+                    e.request.url.includes('fonts.gstatic.com')) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(e.request, responseClone);
+                    });
                 }
-                return networkRes;
+                return response;
+            }).catch(() => {
+                return new Response('Offline');
             });
         })
     );

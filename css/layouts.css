@@ -1,0 +1,532 @@
+/* ==========================================================================
+   LAYOUT MODES, TOP BAR & FULL-WIDTH LIQUID GLASS HERO CLOCK-SEARCH MORPH
+   ========================================================================== */
+
+/* Clean Top Navigation Bar */
+.top-nav-bar {
+    position: fixed;
+    top: 18px;
+    left: 0;
+    width: 100%;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Clean, no clutter on left */
+    z-index: 900;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+/* Single Compact Settings Trigger Button */
+.settings-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.settings-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-top-color: rgba(255, 255, 255, 0.35);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Main Container Base */
+.main-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.96);
+}
+
+/* ==========================================================================
+   FULL-WIDTH HERO INTERACTIVE MORPH ZONE (CLOCK <-> SEARCH)
+   No clipping, spacious breathing room
+   ========================================================================== */
+.hero-interactive-zone {
+    position: relative;
+    width: 100%;
+    max-width: 96vw;
+    min-height: clamp(220px, 30vw, 380px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto;
+    overflow: visible;
+    padding: 24px 0;
+}
+
+/* State 1: Hero Clock Layer */
+.hero-clock-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-morph);
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    width: 100%;
+    overflow: visible;
+}
+
+.hero-date {
+    font-size: clamp(0.85rem, 1.3vw, 1.15rem);
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+/* Full-Width Liquid Glass Clock Typography (Never cut off) */
+.hero-clock-display {
+    font-family: var(--font-display);
+    font-size: clamp(6.5rem, 19vw, 17rem);
+    font-weight: 300;
+    letter-spacing: -2px;
+    line-height: 0.96;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(255, 255, 255, 0.6) 42%, 
+        rgba(255, 255, 255, 0.18) 60%, 
+        rgba(255, 255, 255, 0.8) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 8px 35px var(--accent-glow)) 
+            drop-shadow(0 2px 2px rgba(255, 255, 255, 0.6));
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    width: 100%;
+    user-select: none;
+    padding: 10px 0 16px 0;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.hero-hint {
+    font-size: 0.74rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 14px;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+}
+
+.hero-interactive-zone:hover .hero-hint {
+    opacity: 0.85;
+}
+
+/* State 2: Hero Search Layer */
+.hero-search-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-morph);
+    transform: translateY(16px) scale(0.96);
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+}
+
+/* Interactive Hover / Focus-Within Morph Activation */
+.hero-interactive-zone:hover .hero-clock-layer,
+.hero-interactive-zone.active-search .hero-clock-layer,
+.hero-interactive-zone:focus-within .hero-clock-layer {
+    transform: translateY(-24px) scale(0.94);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hero-interactive-zone:hover .hero-search-layer,
+.hero-interactive-zone.active-search .hero-search-layer,
+.hero-interactive-zone:focus-within .hero-search-layer {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Liquid Glass Search Box */
+.search-glass {
+    width: 100%;
+    max-width: 680px;
+    padding: 6px 8px 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+.search-glass:focus-within {
+    border-top-color: var(--accent-color);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                0 0 0 1px var(--accent-color),
+                0 20px 50px rgba(0, 0, 0, 0.65),
+                0 0 25px var(--accent-glow);
+}
+
+.search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    padding: 10px 8px;
+    font-family: inherit;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Compact Engine Select */
+.engine-select {
+    position: relative;
+}
+
+.engine-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.84rem;
+    font-weight: 500;
+}
+
+.engine-trigger:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.engine-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 170px;
+    background: var(--widget-bg, rgba(14, 10, 12, 0.96));
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(28px);
+    padding: 4px;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: var(--transition-fast);
+    z-index: 9999;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+}
+
+.engine-menu.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.engine-option {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
+.engine-option:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--text-primary);
+}
+
+.engine-option.selected {
+    background: var(--accent-gradient, var(--accent-color));
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.search-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-gradient, var(--accent-color));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: 0 3px 10px var(--accent-glow);
+    flex-shrink: 0;
+}
+
+.search-btn:hover {
+    transform: scale(1.04);
+    filter: brightness(1.1);
+}
+
+/* ==========================================================================
+   LAYOUT 1: MINIMALIST CENTER (DEFAULT)
+   ========================================================================== */
+body[data-layout="center"] .main-container {
+    max-width: 96vw;
+    transform: translateY(-20px);
+}
+
+body[data-layout="center"] .layout-split-view,
+body[data-layout="center"] .layout-bento-view {
+    display: none !important;
+}
+
+body[data-layout="center"] .layout-center-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* ==========================================================================
+   LAYOUT 2: STUDIO SPLIT
+   ========================================================================== */
+body[data-layout="split"] .main-container {
+    max-width: 1080px;
+    transform: translateY(-20px);
+    padding: 0 24px;
+}
+
+body[data-layout="split"] .layout-center-view,
+body[data-layout="split"] .layout-bento-view {
+    display: none !important;
+}
+
+body[data-layout="split"] .layout-split-view {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 36px;
+    align-items: center;
+    width: 100%;
+}
+
+.split-left {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.split-left .hero-clock-display {
+    font-size: clamp(5rem, 12vw, 9rem);
+}
+
+.split-status-card {
+    background: var(--glass-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.split-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.split-quick-tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.split-tool-card {
+    background: var(--glass-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    color: var(--text-secondary);
+}
+
+.split-tool-card:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-top-color: var(--accent-color);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   LAYOUT 3: BENTO GRID (PRODUCTIVITY MODULAR)
+   ========================================================================== */
+body[data-layout="bento"] .main-container {
+    max-width: 1080px;
+    transform: translateY(-20px);
+    padding: 0 20px;
+}
+
+body[data-layout="bento"] .layout-center-view,
+body[data-layout="bento"] .layout-split-view {
+    display: none !important;
+}
+
+body[data-layout="bento"] .layout-bento-view {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.bento-card {
+    background: var(--glass-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(28px);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    transition: var(--transition-fast);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.bento-card:hover {
+    border-top-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.bento-card-hero {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
+}
+
+.bento-card-hero .hero-clock-display {
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    line-height: 0.9;
+}
+
+.bento-card-search {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.bento-card-weather,
+.bento-card-notes,
+.bento-card-todo,
+.bento-card-sounds {
+    grid-column: span 1;
+    min-height: 125px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.bento-card-title {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bento-notes-snippet {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-top: 6px;
+}
+
+.bento-todo-counter {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--accent-color);
+    margin-top: 4px;
+}

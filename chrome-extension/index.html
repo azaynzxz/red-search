@@ -15,23 +15,14 @@
     <!-- Backgrounds -->
     <div class="mesh-background" id="meshBg"></div>
     <div id="particles-js"></div>
-    <canvas id="bgCanvas" style="position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; display:none;"></canvas>
 
 
 
-    <!-- Hidden SVG Filter for Liquid Glass Optics -->
-    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;" aria-hidden="true">
-        <defs>
-            <filter id="liquid-refraction">
-                <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-        </defs>
-    </svg>
-
-
-    <!-- Clean Minimalist Top Navigation Bar (No duplicate date, No UUID) -->
+    <!-- Minimalist Top Navigation Bar -->
     <header class="top-nav-bar">
+        <div class="top-nav-left">
+            <div class="top-date-label" id="topDateLabel">Saturday, Sep 12</div>
+        </div>
         <div class="top-nav-right">
             <button class="settings-trigger-btn" id="settingsBtn" title="Portal Settings">
                 <span class="material-icons" style="font-size:16px;">tune</span>
@@ -44,14 +35,14 @@
     <main class="main-container" id="mainContainer">
 
         <!-- ============================================================
-             VIEW 1: MINIMALIST CENTER (FULL-WIDTH LIQUID GLASS HERO CLOCK <-> SEARCH MORPH)
+             VIEW 1: MINIMALIST CENTER LAYOUT (HERO CLOCK <-> SEARCH MORPH)
              ============================================================ -->
         <div class="layout-center-view">
             <div class="hero-interactive-zone" id="heroInteractiveZone" title="Hover or click to search">
                 <!-- Clock Layer -->
                 <div class="hero-clock-layer" id="heroClockLayer">
-                    <div class="hero-date" id="heroDate">Sat, Sep 12</div>
-                    <div class="hero-clock-display" id="heroClockDisplay">11:07</div>
+                    <div class="hero-date" id="heroDate">Sun, Aug 9</div>
+                    <div class="hero-clock-display" id="heroClockDisplay">10:10</div>
                     <div class="hero-hint">Hover or press '/' to search</div>
                 </div>
 
@@ -85,7 +76,7 @@
         <div class="layout-split-view">
             <div class="split-left">
                 <div class="hero-date">Sat, Sep 12</div>
-                <div class="hero-clock-display clock-time">11:07</div>
+                <div class="hero-clock-display clock-time">10:10</div>
                 <div class="greeting" style="font-size:1.1rem; color:var(--text-secondary);">Good Morning</div>
                 <div class="split-status-card">
                     <div style="display:flex; align-items:center; gap:8px; font-size:0.92rem;">
@@ -107,7 +98,6 @@
                 </div>
 
                 <div class="split-quick-tools">
-
                     <div class="split-tool-card action-widget" data-target="timer">
                         <span class="material-icons">timer</span>
                         <span style="font-size:0.78rem; font-weight:500;">Timer</span>
@@ -115,6 +105,10 @@
                     <div class="split-tool-card action-widget" data-target="todo">
                         <span class="material-icons">check_circle</span>
                         <span style="font-size:0.78rem; font-weight:500;">Tasks</span>
+                    </div>
+                    <div class="split-tool-card action-widget" data-target="notes">
+                        <span class="material-icons">edit_note</span>
+                        <span style="font-size:0.78rem; font-weight:500;">Notes</span>
                     </div>
                 </div>
             </div>
@@ -127,7 +121,7 @@
             <div class="bento-card bento-card-hero">
                 <div>
                     <div class="bento-card-title"><span class="material-icons" style="font-size:14px;">schedule</span> Live Time</div>
-                    <div class="hero-clock-display clock-time" style="font-size:clamp(3.5rem, 7vw, 6rem); margin-top:6px;">11:07</div>
+                    <div class="hero-clock-display clock-time" style="font-size:4.8rem; margin-top:6px;">10:10</div>
                 </div>
                 <div class="greeting" style="font-size:0.95rem; color:var(--text-secondary);">Good Morning</div>
             </div>
@@ -200,7 +194,7 @@
         </div>
 
         <!-- Notes -->
-        <div class="widget-panel" id="widget-notes" style="top: 75px; right: 30px;">
+        <div class="widget-panel" id="widget-notes" style="top: 75px; left: 30px;">
             <div class="widget-header">
                 <div class="widget-title"><span class="material-icons">edit_note</span> Notes</div>
                 <span class="material-icons close-widget">close</span>
@@ -210,7 +204,7 @@
         </div>
 
         <!-- Todo -->
-        <div class="widget-panel" id="widget-todo" style="bottom: 95px; right: 30px; width: 300px;">
+        <div class="widget-panel" id="widget-todo" style="top: 75px; right: 30px; width: 300px;">
             <div class="widget-header">
                 <div class="widget-title"><span class="material-icons">check_circle</span> Tasks</div>
                 <span class="material-icons close-widget">close</span>
@@ -336,7 +330,7 @@
     </div>
 
     <!-- ============================================================
-         AUTHENTIC APPLE MACOS LIQUID GLASS DOCK
+         COMPACT LIQUID GLASS DOCK
          ============================================================ -->
     <div class="dock-wrapper" id="dockWrapper">
         <div class="dock">
@@ -345,7 +339,6 @@
             <div id="dock-pinned-apps" style="display:contents"></div>
 
             <div class="dock-sep"></div>
-
 
             <!-- Widget Tools -->
             <div class="dock-item action-widget" data-target="weather" role="button" tabindex="0">
@@ -414,29 +407,6 @@
 
         <!-- Preferences Tab -->
         <div class="settings-view" id="view-preferences">
-            <div style="margin-bottom: 12px;">
-                <div class="pref-label" style="margin-bottom: 4px;">Background Animation Engine</div>
-                <div class="pref-sub" style="margin-bottom: 8px;">Select active visual shader system</div>
-                <div class="bg-engines-grid">
-                    <div class="bg-engine-card active" data-engine="constellation">
-                        <span class="material-icons" style="color:var(--accent-color); font-size:18px;">hub</span>
-                        <span class="bg-engine-title">Constellation Mesh</span>
-                    </div>
-                    <div class="bg-engine-card" data-engine="matrix">
-                        <span class="material-icons" style="color:var(--accent-color); font-size:18px;">terminal</span>
-                        <span class="bg-engine-title">Viral Matrix Rain</span>
-                    </div>
-                    <div class="bg-engine-card" data-engine="warp">
-                        <span class="material-icons" style="color:var(--accent-color); font-size:18px;">rocket_launch</span>
-                        <span class="bg-engine-title">3D Warp Starfield</span>
-                    </div>
-                    <div class="bg-engine-card" data-engine="waves">
-                        <span class="material-icons" style="color:var(--accent-color); font-size:18px;">water</span>
-                        <span class="bg-engine-title">Quantum Waves</span>
-                    </div>
-                </div>
-            </div>
-
             <div class="pref-row">
                 <div>
                     <div class="pref-label">Clock Format</div>

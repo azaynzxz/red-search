@@ -1,0 +1,261 @@
+/* ==========================================================================
+   BASE & CORE DESIGN SYSTEM - PROFESSIONAL LIQUID GLASS SPEC
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+:root {
+    /* Professional Compact Radii (Crisp, Non-Vibe-Coded) */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+    --radius-pill: 20px;
+
+    /* Typography */
+    --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Oswald', sans-serif;
+
+    /* Transitions */
+    --transition-fast: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-morph: all 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+body {
+    font-family: var(--font-stack);
+    background-color: var(--bg-base, #050507);
+    color: var(--text-primary, #ffffff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.6s ease, color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background mesh & particles */
+.mesh-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: var(--mesh-gradient, radial-gradient(circle at 50% 50%, #150505 0%, #050505 100%));
+    transition: background 0.8s ease, opacity 0.8s ease;
+}
+
+#particles-js {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* ==========================================================================
+   AUTHENTIC LIQUID GLASS OPTICS
+   ========================================================================== */
+.glass-panel {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.04));
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+                0 16px 36px rgba(0, 0, 0, 0.45);
+    position: relative;
+    transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+    border-top-color: rgba(255, 255, 255, 0.35);
+    border-left-color: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+                0 20px 48px rgba(0, 0, 0, 0.55);
+}
+
+/* Compact Buttons & Inputs */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    outline: none;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: var(--accent-gradient, var(--accent-color, #e50914));
+    color: #ffffff;
+    box-shadow: 0 4px 14px var(--accent-glow, rgba(229, 9, 20, 0.35));
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px var(--accent-glow, rgba(229, 9, 20, 0.5));
+}
+
+.btn-glass {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary, #ffffff);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-top-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.input-glass {
+    background: rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-primary, #ffffff);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: var(--transition-fast);
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.input-glass:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-color, #e50914);
+    box-shadow: 0 0 0 2px var(--accent-glow, rgba(229, 9, 20, 0.25));
+}
+
+.input-glass::placeholder {
+    color: var(--text-muted, rgba(255, 255, 255, 0.35));
+}
+
+.material-icons {
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+/* Focus Mode Active State */
+body.focus-mode-active .top-nav-bar,
+body.focus-mode-active .top-nav-right,
+body.focus-mode-active .settings-trigger-btn,
+body.focus-mode-active #settingsBtn,
+body.focus-mode-active [title*="Settings"] {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transform: translateY(-20px) !important;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.focus-mode-active .widgets-layer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+/* Guarantee Focus Mode Banner is unconditionally never displayed anywhere */
+#focusBanner,
+.focus-banner,
+div[id*="focusBanner"],
+div[class*="focus-banner"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Screensaver Mode */
+body.screensaver-active {
+    background: #000000 !important;
+    cursor: none;
+}
+
+body.screensaver-active .mesh-background {
+    opacity: 0;
+}
+
+body.screensaver-active .top-nav-bar,
+body.screensaver-active .dock-wrapper,
+body.screensaver-active .widgets-layer,
+body.screensaver-active .customizer-modal,
+body.screensaver-active .settings-modal,
+body.screensaver-active .focus-banner,
+body.screensaver-active .bento-container,
+body.screensaver-active .split-side,
+body.screensaver-active .hero-hint,
+body.screensaver-active .hero-search-layer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.94) !important;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.screensaver-active .main-container {
+    transform: translateY(0) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.screensaver-active .hero-clock-display {
+    font-size: 22vw !important;
+    font-weight: 300 !important;
+    letter-spacing: 4px !important;
+    text-shadow: 0 0 60px var(--accent-glow, rgba(255, 255, 255, 0.4)) !important;
+    line-height: 0.85 !important;
+    color: #ffffff !important;
+}

@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Search Portal - Premium New Tab",
+    "version": "1.0.0",
+    "description": "A beautiful, feature-rich new tab replacement with search, widgets, focus mode, and productivity tools.",
+    "author": "Your Name",
+    "chrome_url_overrides": {
+        "newtab": "index.html"
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; media-src 'self' https://actions.google.com https://cdn.freesound.org; img-src 'self' data: https:;"
+    },
+    "permissions": [
+        "storage"
+    ],
+    "offline_enabled": true,
+    "background": {
+        "service_worker": "sw.js"
+    }
+}

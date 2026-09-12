@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "Search Portal New Tab",
+    "version": "1.0",
+    "description": "Replaces the new tab page with your personal Search Portal.",
+    "chrome_url_overrides": {
+        "newtab": "index.html"
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; media-src 'self' https://actions.google.com https://cdn.freesound.org; img-src 'self' data: https:;"
+    },
+    "permissions": [
+        "bookmarks"
+    ]
+}
