@@ -1,5 +1,17 @@
 # Version History
 
+## Version 1.2.0 (Built-in Gemini 3.5 AI Terminal)
+**Release Date**: September 12, 2026
+
+### Highlights
+- 🤖 **Direct Search-Bar Gemini AI Integration**: Type `/a <query>` in the search bar to query Google Gemini 3.5 Flash without redirecting to external websites.
+- ⚡ **Sleek Search-to-Terminal Morph Animation**: The search bar smoothly expands into a Sci-Fi CLI / IRC Liquid Glass terminal with specular highlights.
+- 💬 **Streaming Token SSE**: Instant real-time response generation with cyber cursor typing and markdown formatting (syntax code blocks with copy button).
+- ⚙️ **Secure Key Storage**: API key stored locally in browser `localStorage`, with configuration in Settings modal.
+- ⌨️ **CLI Commands**: Terminal supports `/clear`, `/help`, `/exit`, and `/model` commands, with `Esc` quick-exit.
+
+---
+
 ## Version 1.1.0 (Modular Liquid Glass & macOS Physics)
 **Release Date**: September 12, 2026
 

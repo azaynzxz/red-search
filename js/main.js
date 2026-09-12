@@ -12,6 +12,7 @@ import { initClock } from './clock.js';
 import { initLayouts } from './layouts.js';
 import { initScreensaver } from './screensaver.js';
 import { backgroundManager } from './backgrounds.js';
+import { initAIChat } from './ai-chat.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Clean up any stale legacy focus banners
@@ -30,10 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Initialize Background Engines
     backgroundManager.init();
 
-    // 3. Initialize Widgets & Capture Controller
+    // 3. Initialize Gemini 3.5 Flash AI Terminal
+    const aiTerminalInstance = initAIChat();
+    window.aiTerminalInstance = aiTerminalInstance;
+
+    // 4. Initialize Widgets & Capture Controller
     const { toggleWidget } = initWidgets();
 
-    // 4. Initialize Core Visual & Logic Engines
+    // 5. Initialize Core Visual & Logic Engines
     initThemes();
     initDock(toggleWidget);
     initSearch();
@@ -83,6 +88,27 @@ document.addEventListener('DOMContentLoaded', () => {
             backgroundManager.setEngine(card.dataset.engine);
         };
     });
+
+    // Gemini API Key Settings Handler
+    const apiKeyInput = document.getElementById('prefApiKeyInput');
+    const saveApiKeyBtn = document.getElementById('prefSaveApiKeyBtn');
+    if (apiKeyInput) {
+        apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+    }
+    if (saveApiKeyBtn && apiKeyInput) {
+        saveApiKeyBtn.onclick = () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                saveApiKeyBtn.textContent = 'Saved!';
+                saveApiKeyBtn.style.color = '#4ade80';
+                setTimeout(() => {
+                    saveApiKeyBtn.textContent = 'Save';
+                    saveApiKeyBtn.style.color = '';
+                }, 2000);
+            }
+        };
+    }
 
     // 6. Focus Mode Trigger
     const focusBtn = document.getElementById('prefFocusToggle');

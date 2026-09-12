@@ -6,12 +6,18 @@
 import { AMBIENT_SOUNDS } from './config.js';
 import { state } from './state.js';
 import { syncModularCards } from './layouts.js';
+import { aiTerminal } from './ai-chat.js';
 
 export const initWidgets = () => {
     let maxZ = 500;
 
     // --- WIDGET TOGGLE & LAYERING ---
     const toggleWidget = (id) => {
+        if (id === 'ai') {
+            if (aiTerminal) aiTerminal.toggle();
+            return;
+        }
+
         const el = document.getElementById(`widget-${id}`);
         if (!el) return;
 

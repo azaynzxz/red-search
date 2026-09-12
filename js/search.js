@@ -1,9 +1,6 @@
-/**
- * SEARCH ENGINE LOGIC & HERO CLOCK-SEARCH INTERACTIVE MORPH
- */
-
 import { SEARCH_ENGINES } from './config.js';
 import { state } from './state.js';
+import { aiTerminal } from './ai-chat.js';
 
 export const initSearch = () => {
     const engineMenu = document.getElementById('engineMenu');
@@ -11,6 +8,8 @@ export const initSearch = () => {
     const currentEngineIcon = document.getElementById('currentEngineIcon');
     const currentEngineName = document.getElementById('currentEngineName');
     const heroZone = document.getElementById('heroInteractiveZone');
+    const aiModeBadge = document.getElementById('aiModeBadge');
+    const heroSearchBtn = document.getElementById('heroSearchBtn');
 
     // Populate engine selector
     if (engineMenu) {
@@ -85,6 +84,18 @@ export const initSearch = () => {
     searchInputs.forEach(input => {
         input.addEventListener('input', () => {
             const val = input.value;
+
+            // Detect /a AI query mode
+            const isAIMode = val.toLowerCase().startsWith('/a ') || val.toLowerCase() === '/a';
+            if (aiModeBadge) {
+                aiModeBadge.style.display = isAIMode ? 'inline-flex' : 'none';
+            }
+            if (isAIMode) {
+                input.placeholder = "Ask Gemini 3.5 anything (Enter to submit)...";
+            } else {
+                input.placeholder = "Search the web (or type '/a' for Gemini AI)...";
+            }
+
             for (const [key, engine] of Object.entries(shortcuts)) {
                 if (val.startsWith(key + ' ') || val === key) {
                     state.setEngine(engine);
@@ -108,10 +119,38 @@ export const initSearch = () => {
             }
         });
 
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') doSearch(input.value);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = input.value.trim();
+                if (val.toLowerCase().startsWith('/a ') || val.toLowerCase() === '/a') {
+                    e.preventDefault();
+                    const query = val.replace(/^\/a\s*/i, '').trim();
+                    if (aiTerminal) {
+                        aiTerminal.open(query);
+                    }
+                    return;
+                }
+                doSearch(val);
+            }
         });
     });
+
+    if (heroSearchBtn) {
+        heroSearchBtn.onclick = () => {
+            const heroInput = document.getElementById('heroSearchInput');
+            if (heroInput) {
+                const val = heroInput.value.trim();
+                if (val.toLowerCase().startsWith('/a ') || val.toLowerCase() === '/a') {
+                    const query = val.replace(/^\/a\s*/i, '').trim();
+                    if (aiTerminal) {
+                        aiTerminal.open(query);
+                    }
+                    return;
+                }
+                doSearch(val);
+            }
+        };
+    }
 
     // Click on clock layer triggers morph and focuses search
     const clockLayer = document.getElementById('heroClockLayer');

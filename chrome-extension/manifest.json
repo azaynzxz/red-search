@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "Search Portal - Premium New Tab",
-    "version": "1.1.0",
-    "description": "Minimalist Liquid Glass new tab replacement with hero clock, Apple-style dock, dynamic particle backgrounds, and productivity widgets.",
+    "version": "1.2.0",
+    "description": "Minimalist Liquid Glass new tab replacement with Gemini 3.5 AI Terminal, hero clock, Apple dock, and dynamic backgrounds.",
     "author": "Your Name",
     "chrome_url_overrides": {
         "newtab": "index.html"
@@ -13,10 +13,13 @@
         "128": "icons/icon128.png"
     },
     "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; media-src 'self' https://actions.google.com https://cdn.freesound.org; img-src 'self' data: https:;"
+        "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' https://generativelanguage.googleapis.com; media-src 'self' https://actions.google.com https://cdn.freesound.org; img-src 'self' data: https:;"
     },
     "permissions": [
         "storage"
+    ],
+    "host_permissions": [
+        "https://generativelanguage.googleapis.com/*"
     ],
     "offline_enabled": true,
     "background": {

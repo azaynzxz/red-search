@@ -1,4 +1,4 @@
-const CACHE_NAME = 'search-portal-v12';
+const CACHE_NAME = 'search-portal-v13';
 const ASSETS = [
     '/',
     '/index.html',
@@ -19,6 +19,7 @@ const ASSETS = [
     '/js/widgets.js',
     '/js/screensaver.js',
     '/js/backgrounds.js',
+    '/js/ai-chat.js',
     '/particles.js-master/particles.min.js',
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500&family=JetBrains+Mono:wght@400;500&display=swap',
     'https://fonts.googleapis.com/icon?family=Material+Icons'
