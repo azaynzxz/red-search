@@ -1,5 +1,6 @@
 /**
- * MACOS-STYLE PARABOLIC LIQUID DOCK & BOOKMARK APP MANAGER
+ * AUTHENTIC APPLE MACOS DOCK PHYSICS & APP MANAGER
+ * Gaussian Magnification Wave with Lateral Dispersion
  */
 
 import { state } from './state.js';
@@ -73,19 +74,19 @@ export const initDock = (toggleWidget) => {
 
                 const pImg = document.createElement('img');
                 pImg.src = displayIcon;
-                pImg.style.cssText = "width:28px; height:28px; border-radius:6px; object-fit:contain;";
+                pImg.style.cssText = "width:24px; height:24px; border-radius:4px; object-fit:contain;";
                 pImg.onerror = () => {
                     const fallback = `https://www.google.com/s2/favicons?domain=${app.url}&sz=64`;
                     if (pImg.src !== fallback) pImg.src = fallback;
                 };
 
                 const pSpan = document.createElement('span');
-                pSpan.style.cssText = "font-size:0.78rem; font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:60px;";
+                pSpan.style.cssText = "font-size:0.75rem; font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:55px;";
                 pSpan.textContent = app.name;
 
                 const pDel = document.createElement('div');
                 pDel.className = 'bm-delete-btn';
-                pDel.innerHTML = '<span class="material-icons" style="font-size:14px;">close</span>';
+                pDel.innerHTML = '<span class="material-icons" style="font-size:12px;">close</span>';
                 pDel.onclick = (e) => {
                     e.stopPropagation();
                     const updated = [...state.pinnedApps];
@@ -106,7 +107,7 @@ export const initDock = (toggleWidget) => {
                     urlInput.value = app.url;
                     nameInput.value = app.name;
                     iconInput.value = app.customIcon || '';
-                    addBtn.innerHTML = '<span class="material-icons">save</span>';
+                    addBtn.innerHTML = '<span class="material-icons" style="font-size:16px;">save</span>';
                     renderApps();
                 };
 
@@ -155,7 +156,6 @@ export const initDock = (toggleWidget) => {
             state.setPinnedApps(updated);
             renderApps();
 
-            // Background icon caching
             const targetIconUrl = icon || `https://logo.clearbit.com/${new URL(url).hostname}`;
             const base64 = await convertImageToBase64(targetIconUrl);
             if (base64) {
@@ -168,17 +168,16 @@ export const initDock = (toggleWidget) => {
 
     renderApps();
 
-    // Subscribe to pinned apps changes
     state.subscribe('pinnedApps', () => {
         renderApps();
     });
 
-    // --- CONTINUOUS PARABOLIC MAGNIFICATION ENGINE ---
+    // --- AUTHENTIC APPLE MACOS DOCK PHYSICS ---
     if (!dockEl) return;
 
     let rafId = null;
-    const MAX_DISTANCE = 135;
-    const MAX_SCALE = 1.38;
+    const SIGMA = 55; // Spread of Gaussian curve
+    const MAX_SCALE = 1.40; // Max magnification factor
 
     const handleMouseMove = (e) => {
         if (rafId) cancelAnimationFrame(rafId);
@@ -190,15 +189,19 @@ export const initDock = (toggleWidget) => {
             items.forEach(item => {
                 const rect = item.getBoundingClientRect();
                 const itemCenterX = rect.left + rect.width / 2;
-                const dist = Math.abs(mouseX - itemCenterX);
+                const d = mouseX - itemCenterX;
+                const absD = Math.abs(d);
 
-                if (dist < MAX_DISTANCE) {
-                    // Cosine curve for parabolic smooth wave
-                    const norm = dist / MAX_DISTANCE;
-                    const factor = Math.cos(norm * (Math.PI / 2));
-                    const scale = 1 + (MAX_SCALE - 1) * factor;
-                    const translateY = -((scale - 1) * 36);
-                    item.style.transform = `translate3d(0, ${translateY}px, 0) scale(${scale})`;
+                if (absD < 160) {
+                    // Gaussian curve: w = exp(-d^2 / (2 * sigma^2))
+                    const w = Math.exp(-Math.pow(absD, 2) / (2 * Math.pow(SIGMA, 2)));
+                    const scale = 1 + (MAX_SCALE - 1) * w;
+                    const translateY = -((scale - 1) * 26);
+
+                    // Lateral dispersion: icons gently part sideways away from the cursor
+                    const lateralShift = Math.sign(d) * Math.min(absD * 0.12, 12) * w;
+
+                    item.style.transform = `translate3d(${-lateralShift}px, ${translateY}px, 0) scale(${scale})`;
                     item.style.zIndex = Math.round(scale * 10);
                 } else {
                     item.style.transform = 'translate3d(0, 0, 0) scale(1)';

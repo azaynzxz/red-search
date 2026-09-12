@@ -540,6 +540,42 @@
     margin-top: 2px;
 }
 
+/* Background Animation Engines Grid in Settings */
+.bg-engines-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.bg-engine-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bg-engine-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--glass-border-hover);
+}
+
+.bg-engine-card.active {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color), 0 4px 12px var(--accent-glow);
+}
+
+.bg-engine-title {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
 /* Theme Cards Grid */
 .themes-grid {
     display: grid;

@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "Search Portal - Premium New Tab",
-    "version": "1.0.0",
-    "description": "A beautiful, feature-rich new tab replacement with search, widgets, focus mode, and productivity tools.",
+    "version": "1.1.0",
+    "description": "Minimalist Liquid Glass new tab replacement with hero clock, Apple-style dock, dynamic particle backgrounds, and productivity widgets.",
     "author": "Your Name",
     "chrome_url_overrides": {
         "newtab": "index.html"

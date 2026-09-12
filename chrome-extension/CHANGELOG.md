@@ -1,5 +1,19 @@
 # Version History
 
+## Version 1.1.0 (Modular Liquid Glass & macOS Physics)
+**Release Date**: September 12, 2026
+
+### Highlights
+- 🪟 **Refined Liquid Glass Aesthetics**: Crisp 6px–10px architectural radii, multi-layer glass highlights, and specular edge refraction (replacing rounded bubble/pill aesthetics).
+- 🕒 **Full-Width Hero Clock**: Screen-wide Oswald typography (`clamp(6.5rem, 19vw, 17rem)`) with zero clipping and hover-morph search transition.
+- 🍏 **Apple macOS Dock Physics**: Gaussian magnification wave with lateral dispersion (neighboring icons part sideways without layout reflow; zero click bounce).
+- 🌌 **4 Dynamic Background Engines**: Cyber Constellation (fast interactive particles), Viral Matrix Rain (digital canvas rain), 3D Warp Starfield (hyperspace canvas), and Quantum Waves.
+- ⚙️ **Consolidated Settings & Theme Engine**: 8 curated color themes and integrated engine switcher in a unified settings panel.
+- 🧘 **Refined Zen Focus Mode**: Clean distraction-free view that completely hides the settings icon and eliminates on-screen banners.
+- 🧱 **Fully Modular Architecture**: Separated into 6 modular CSS files and 11 focused ES modules.
+
+---
+
 ## Version 1.0.0 (Initial Release)
 **Release Date**: January 31, 2026
 

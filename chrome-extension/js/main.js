@@ -1,6 +1,6 @@
 /**
  * SEARCH PORTAL - MAIN APPLICATION ENTRY POINT
- * Liquid Glass & Consolidated Settings Architecture
+ * Liquid Glass, Multi-Engine Backgrounds & Modular Physics Dock
  */
 
 import { state } from './state.js';
@@ -11,19 +11,29 @@ import { initSearch } from './search.js';
 import { initClock } from './clock.js';
 import { initLayouts } from './layouts.js';
 import { initScreensaver } from './screensaver.js';
+import { backgroundManager } from './backgrounds.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Service Worker Registration
+    // Clean up any stale legacy focus banners
+    const staleBanner = document.getElementById('focusBanner') || document.querySelector('.focus-banner');
+    if (staleBanner) staleBanner.remove();
+
+    // 1. Service Worker Registration & Live Update
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+            reg.update();
+        }).catch(err => {
             console.warn("SW registration notice:", err);
         });
     }
 
-    // 2. Initialize Widgets & Capture Controller
+    // 2. Initialize Background Engines
+    backgroundManager.init();
+
+    // 3. Initialize Widgets & Capture Controller
     const { toggleWidget } = initWidgets();
 
-    // 3. Initialize Core Engines
+    // 4. Initialize Core Visual & Logic Engines
     initThemes();
     initDock(toggleWidget);
     initSearch();
@@ -31,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLayouts(toggleWidget);
     initScreensaver();
 
-    // 4. Consolidated Settings Modal
+    // 5. Consolidated Settings Modal
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsModal = document.getElementById('settingsModal');
     const settingsBackdrop = document.getElementById('settingsBackdrop');
@@ -67,7 +77,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // 5. Focus Mode Trigger
+    // Background Animation Engine Selection
+    document.querySelectorAll('.bg-engine-card').forEach(card => {
+        card.onclick = () => {
+            backgroundManager.setEngine(card.dataset.engine);
+        };
+    });
+
+    // 6. Focus Mode Trigger
     const focusBtn = document.getElementById('prefFocusToggle');
     const mainContainer = document.getElementById('mainContainer');
     const dockWrapper = document.getElementById('dockWrapper');
