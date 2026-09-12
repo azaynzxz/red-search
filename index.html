@@ -135,6 +135,9 @@
                                             <div class="draft-quick-actions">
                                                 <button type="button" class="draft-text-btn" id="btnDraftSample" title="Insert a sample draft to test">Sample</button>
                                                 <button type="button" class="draft-text-btn" id="btnDraftClear" title="Clear editor">Clear</button>
+                                                <button type="button" class="draft-text-btn" id="btnDraftHistory" title="Browse saved draft history (15-day archive)">
+                                                    <span class="material-icons" style="font-size:12px; vertical-align:-2px; margin-right:2px;">history</span>History
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -168,6 +171,21 @@
                                             <p>Enter text above and choose <strong>Fix Grammar</strong> or a <strong>Tone Alternative</strong>.</p>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Draft History Panel (slides in) -->
+                                <div class="draft-history-panel" id="draftHistoryPanel">
+                                    <div class="draft-history-header">
+                                        <div class="draft-history-title">
+                                            <span class="material-icons" style="font-size:15px; margin-right:5px; vertical-align:-2px;">history</span>
+                                            Draft History
+                                            <span class="draft-history-badge" id="draftHistoryBadge">0</span>
+                                        </div>
+                                        <button type="button" class="draft-history-close" id="btnDraftHistoryClose" title="Close history">
+                                            <span class="material-icons" style="font-size:16px;">close</span>
+                                        </button>
+                                    </div>
+                                    <div class="draft-history-body" id="draftHistoryBody"></div>
                                 </div>
                             </div>
                         </div>

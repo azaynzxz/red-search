@@ -133,6 +133,7 @@ class GeminiAITerminal {
         this.promptHistory = this.loadPromptHistory();
         this.historyIndex = -1;
         this.savedDraft = '';
+        this.draftCards = this.loadDraftCards(); // persisted draft cards with 15-day expiry
 
         this.initKey();
         this.initDOM();
@@ -155,6 +156,40 @@ class GeminiAITerminal {
             localStorage.setItem('gemini_chat_history', JSON.stringify(this.chatHistory));
         } catch (e) {}
     }
+
+    // ── Draft Card Persistence (15-day auto-expiry) ────────────────────────────
+
+    loadDraftCards() {
+        try {
+            const saved = localStorage.getItem('gemini_draft_cards');
+            if (!saved) return [];
+            const all = JSON.parse(saved);
+            const cutoff = Date.now() - 15 * 24 * 60 * 60 * 1000; // 15 days in ms
+            return all.filter(c => c.savedAt && c.savedAt > cutoff);
+        } catch (e) {
+            return [];
+        }
+    }
+
+    saveDraftCards() {
+        try {
+            localStorage.setItem('gemini_draft_cards', JSON.stringify(this.draftCards));
+        } catch (e) {}
+    }
+
+    restoreDraftCards() {
+        if (!this.draftCardsContainer || !this.draftCards.length) return;
+        // Clear empty state before restoring
+        const emptyState = document.getElementById('draftEmptyState');
+        if (emptyState) emptyState.remove();
+        // Render oldest first so newest ends up on top after prepend
+        const ordered = [...this.draftCards].reverse();
+        for (const card of ordered) {
+            this._renderDraftCard(card, /* prepend */ true);
+        }
+    }
+
+    // ── End Draft Card Persistence ─────────────────────────────────────────────
 
     restoreFeedHistory() {
         if (!this.feed || !this.chatHistory || !this.chatHistory.length) return;
@@ -384,8 +419,13 @@ class GeminiAITerminal {
         this.btnDraftClear = document.getElementById('btnDraftClear');
         this.btnFixGrammar = document.getElementById('btnFixGrammar');
         this.btnGenerateAllTones = document.getElementById('btnGenerateAllTones');
+        this.btnDraftHistory = document.getElementById('btnDraftHistory');
         this.draftToneChips = document.getElementById('draftToneChips');
         this.draftCardsContainer = document.getElementById('draftCardsContainer');
+        this.draftHistoryPanel = document.getElementById('draftHistoryPanel');
+        this.draftHistoryBody = document.getElementById('draftHistoryBody');
+        this.draftHistoryBadge = document.getElementById('draftHistoryBadge');
+        this.btnDraftHistoryClose = document.getElementById('btnDraftHistoryClose');
 
         if (this.draftTextarea) {
             this.draftTextarea.addEventListener('input', () => this.updateDraftCounts());
@@ -426,6 +466,19 @@ class GeminiAITerminal {
                     if (tone) this.handleGenerateSingleTone(tone);
                 };
             });
+        }
+
+        if (this.btnDraftHistory) {
+            this.btnDraftHistory.onclick = () => this.toggleDraftHistory();
+        }
+
+        if (this.btnDraftHistoryClose) {
+            this.btnDraftHistoryClose.onclick = () => this.hideDraftHistory();
+        }
+
+        // Update badge count on init
+        if (this.draftHistoryBadge) {
+            this.draftHistoryBadge.textContent = this.draftCards.length;
         }
 
         // Global Esc key to close terminal
@@ -745,6 +798,8 @@ class GeminiAITerminal {
 
     clearHistory() {
         if (this.currentView === 'draft') {
+            this.draftCards = [];
+            this.saveDraftCards();
             if (this.draftCardsContainer) {
                 this.draftCardsContainer.innerHTML = `
                     <div class="draft-empty-state" id="draftEmptyState">
@@ -1165,10 +1220,25 @@ ${text}`;
     prependDraftCard({ id, toneKey, title, icon, badgeClass, content }) {
         if (!this.draftCardsContainer) return;
 
+        // Remove existing card with same tone key from DOM and store
         const existing = this.draftCardsContainer.querySelector(`[data-tone-card="${toneKey}"]`);
-        if (existing) {
-            existing.remove();
-        }
+        if (existing) existing.remove();
+        this.draftCards = this.draftCards.filter(c => c.toneKey !== toneKey);
+
+        // Build the persistent card record
+        const cardData = { id, toneKey, title, icon, badgeClass, content, savedAt: Date.now() };
+        this.draftCards.unshift(cardData);
+        this.saveDraftCards();
+
+        this._renderDraftCard(cardData, true);
+    }
+
+    _renderDraftCard({ id, toneKey, title, icon, badgeClass, content, savedAt }, prepend = false) {
+        if (!this.draftCardsContainer) return;
+
+        const ageDays = savedAt ? Math.floor((Date.now() - savedAt) / 86400000) : 0;
+        const ageLabel = ageDays === 0 ? 'Today' : ageDays === 1 ? '1 day ago' : `${ageDays} days ago`;
+        const expiresIn = 15 - ageDays;
 
         const card = document.createElement('div');
         card.className = 'draft-card';
@@ -1180,10 +1250,15 @@ ${text}`;
                     <span class="material-icons tone-icon">${icon}</span>
                     <span>${title}</span>
                 </div>
-                <button type="button" class="draft-copy-btn" title="Copy text">
-                    <span class="material-icons" style="font-size:13px;">content_copy</span>
-                    <span>Copy</span>
-                </button>
+                <div class="draft-card-actions">
+                    <button type="button" class="draft-copy-btn" title="Copy text">
+                        <span class="material-icons" style="font-size:13px;">content_copy</span>
+                        <span>Copy</span>
+                    </button>
+                    <button type="button" class="draft-delete-btn" title="Delete this card">
+                        <span class="material-icons" style="font-size:13px;">delete_outline</span>
+                    </button>
+                </div>
             </div>
             <div class="draft-card-body">${this.escapeHTML(content)}</div>
             <div class="draft-card-footer">
@@ -1191,6 +1266,7 @@ ${text}`;
                     <span class="material-icons" style="font-size:13px;">arrow_upward</span>
                     <span>Use Draft</span>
                 </button>
+                <span class="draft-card-age" title="Auto-deletes after 15 days">${ageLabel} &middot; expires in ${expiresIn}d</span>
             </div>
         `;
 
@@ -1206,6 +1282,29 @@ ${text}`;
             };
         }
 
+        const deleteBtn = card.querySelector('.draft-delete-btn');
+        if (deleteBtn) {
+            deleteBtn.onclick = () => {
+                card.style.transition = 'opacity 0.2s, transform 0.2s';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    card.remove();
+                    this.draftCards = this.draftCards.filter(c => c.toneKey !== toneKey);
+                    this.saveDraftCards();
+                    // Show empty state if no cards remain
+                    if (this.draftCardsContainer && !this.draftCardsContainer.querySelector('.draft-card')) {
+                        this.draftCardsContainer.innerHTML = `
+                            <div class="draft-empty-state" id="draftEmptyState">
+                                <span class="material-icons" style="font-size: 26px; opacity: 0.35;">edit_note</span>
+                                <p>Enter text above and choose <strong>Fix Grammar</strong> or a <strong>Tone Alternative</strong>.</p>
+                            </div>
+                        `;
+                    }
+                }, 220);
+            };
+        }
+
         const useBtn = card.querySelector('.btn-use-draft');
         if (useBtn) {
             useBtn.onclick = () => {
@@ -1217,7 +1316,122 @@ ${text}`;
             };
         }
 
-        this.draftCardsContainer.prepend(card);
+        if (prepend) {
+            this.draftCardsContainer.prepend(card);
+        } else {
+            this.draftCardsContainer.appendChild(card);
+        }
+    }
+
+    toggleDraftHistory() {
+        if (this.draftHistoryPanel && this.draftHistoryPanel.classList.contains('open')) {
+            this.hideDraftHistory();
+        } else {
+            this.showDraftHistory();
+        }
+    }
+
+    showDraftHistory() {
+        if (!this.draftHistoryPanel || !this.draftHistoryBody) return;
+
+        // Update badge
+        if (this.draftHistoryBadge) this.draftHistoryBadge.textContent = this.draftCards.length;
+
+        // Build history list grouped by date
+        this.draftHistoryBody.innerHTML = '';
+
+        if (!this.draftCards.length) {
+            this.draftHistoryBody.innerHTML = `
+                <div class="draft-history-empty">
+                    <span class="material-icons" style="font-size:26px; opacity:0.3;">history</span>
+                    <p>No saved drafts yet.<br>Generated cards are archived here for 15 days.</p>
+                </div>`;
+        } else {
+            // Group by day bucket
+            const groups = {};
+            const now = Date.now();
+            for (const card of this.draftCards) {
+                const ageDays = card.savedAt ? Math.floor((now - card.savedAt) / 86400000) : 0;
+                let label;
+                if (ageDays === 0) label = 'Today';
+                else if (ageDays === 1) label = 'Yesterday';
+                else label = `${ageDays} days ago`;
+                if (!groups[label]) groups[label] = [];
+                groups[label].push(card);
+            }
+
+            for (const [groupLabel, cards] of Object.entries(groups)) {
+                const groupEl = document.createElement('div');
+                groupEl.innerHTML = `<div class="draft-history-group-label">${groupLabel}</div>`;
+                for (const card of cards) {
+                    groupEl.appendChild(this._buildHistoryItem(card));
+                }
+                this.draftHistoryBody.appendChild(groupEl);
+            }
+        }
+
+        this.draftHistoryPanel.classList.add('open');
+        if (this.btnDraftHistory) this.btnDraftHistory.classList.add('active');
+    }
+
+    hideDraftHistory() {
+        if (!this.draftHistoryPanel) return;
+        this.draftHistoryPanel.classList.remove('open');
+        if (this.btnDraftHistory) this.btnDraftHistory.classList.remove('active');
+    }
+
+    _buildHistoryItem(cardData) {
+        const { toneKey, title, icon, badgeClass, content, savedAt } = cardData;
+        const preview = content.length > 90 ? content.slice(0, 90).trimEnd() + '...' : content;
+
+        const item = document.createElement('div');
+        item.className = 'draft-history-item';
+        item.dataset.historyTone = toneKey;
+        item.innerHTML = `
+            <div class="draft-history-item-header">
+                <div class="tone-badge ${badgeClass}">
+                    <span class="material-icons tone-icon">${icon}</span>
+                    <span>${title}</span>
+                </div>
+                <div class="draft-history-item-actions">
+                    <button type="button" class="draft-history-restore-btn" title="Restore to main view">
+                        <span class="material-icons" style="font-size:12px;">arrow_back</span>Restore
+                    </button>
+                    <button type="button" class="draft-history-del-btn" title="Delete from history">
+                        <span class="material-icons" style="font-size:13px;">delete_outline</span>
+                    </button>
+                </div>
+            </div>
+            <div class="draft-history-preview">${this.escapeHTML(preview)}</div>
+        `;
+
+        item.querySelector('.draft-history-restore-btn').onclick = () => {
+            // Bring card back into main view and close history
+            this.hideDraftHistory();
+            this.prependDraftCard({ id: 'card-' + toneKey + '-restored-' + Date.now(), toneKey, title, icon, badgeClass, content });
+        };
+
+        item.querySelector('.draft-history-del-btn').onclick = () => {
+            item.style.transition = 'opacity 0.18s, transform 0.18s';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(12px)';
+            setTimeout(() => {
+                item.remove();
+                this.draftCards = this.draftCards.filter(c => c.toneKey !== toneKey);
+                this.saveDraftCards();
+                if (this.draftHistoryBadge) this.draftHistoryBadge.textContent = this.draftCards.length;
+                // If body is empty, show empty state
+                if (this.draftHistoryBody && !this.draftHistoryBody.querySelector('.draft-history-item')) {
+                    this.draftHistoryBody.innerHTML = `
+                        <div class="draft-history-empty">
+                            <span class="material-icons" style="font-size:26px; opacity:0.3;">history</span>
+                            <p>No saved drafts yet.<br>Generated cards are archived here for 15 days.</p>
+                        </div>`;
+                }
+            }, 200);
+        };
+
+        return item;
     }
 
     scrollToBottom() {

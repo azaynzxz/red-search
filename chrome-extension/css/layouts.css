@@ -554,6 +554,8 @@ body.ai-terminal-active .ai-terminal-wrapper {
     display: flex;
 }
 
+/* Terminal Feed / Scroll Area */
+
 .terminal-model-select {
     padding: 2px 8px;
     background: rgba(255, 255, 255, 0.08);
@@ -1013,10 +1015,263 @@ body.ai-terminal-active .ai-terminal-wrapper {
     transform: translateY(-1px);
 }
 
+.draft-action-btn.history {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--text-secondary);
+}
+
+.draft-action-btn.history:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.draft-action-btn.history.active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+}
+
 .draft-action-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+}
+
+/* Draft card header action group (copy + delete side by side) */
+.draft-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.draft-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 5px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.draft-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
+}
+
+/* Age label in card footer */
+.draft-card-age {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-left: auto;
+}
+
+/* History Panel - slides over the cards scroll area */
+.draft-history-panel {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 22, 0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(56, 189, 248, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.draft-history-panel.open {
+    transform: translateX(0);
+}
+
+.draft-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+}
+
+.draft-history-title {
+    display: flex;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #38bdf8;
+    letter-spacing: 0.3px;
+}
+
+.draft-history-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 9px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-left: 7px;
+}
+
+.draft-history-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: var(--transition-fast);
+}
+
+.draft-history-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.draft-history-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.draft-history-body::-webkit-scrollbar { width: 5px; }
+.draft-history-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+}
+
+.draft-history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 30px 10px;
+    color: var(--text-muted);
+    font-size: 0.80rem;
+    text-align: center;
+    gap: 6px;
+}
+
+/* Date group label */
+.draft-history-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 2px 0 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 6px;
+}
+
+/* Individual history entry */
+.draft-history-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-xs);
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: var(--transition-fast);
+    animation: draftCardFadeIn 0.22s ease-out forwards;
+}
+
+.draft-history-item:hover {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.draft-history-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.draft-history-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.draft-history-preview {
+    font-size: 0.79rem;
+    line-height: 1.5;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.draft-history-restore-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 3px;
+    color: #38bdf8;
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    padding: 2px 7px;
+    transition: var(--transition-fast);
+    white-space: nowrap;
+}
+
+.draft-history-restore-btn:hover {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #fff;
+}
+
+.draft-history-del-btn {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: var(--transition-fast);
+}
+
+.draft-history-del-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
 }
 
 .draft-tone-chips {
