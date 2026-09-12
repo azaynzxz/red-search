@@ -12,9 +12,13 @@ import { initClock } from './clock.js';
 import { initLayouts } from './layouts.js';
 import { initScreensaver } from './screensaver.js';
 import { backgroundManager } from './backgrounds.js';
-import { initAIChat } from './ai-chat.js';
+import { initAIChat, DEFAULT_SYSTEM_PROMPT } from './ai-chat.js';
+import { initErrorNotifications } from './notifications.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Initialize Console Error Notification HUD & Global Interceptors
+    initErrorNotifications();
+
     // Clean up any stale legacy focus banners
     const staleBanner = document.getElementById('focusBanner') || document.querySelector('.focus-banner');
     if (staleBanner) staleBanner.remove();
@@ -89,6 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
+    // Gemini Model Selection Handler
+    const prefModelSelect = document.getElementById('prefModelSelect');
+    if (prefModelSelect) {
+        prefModelSelect.value = localStorage.getItem('gemini_model') || 'gemini-3.7-flash';
+        prefModelSelect.onchange = (e) => {
+            const modelVal = e.target.value;
+            localStorage.setItem('gemini_model', modelVal);
+            if (window.aiTerminalInstance) {
+                window.aiTerminalInstance.setModel(modelVal);
+            }
+        };
+    }
+
     // Gemini API Key Settings Handler
     const apiKeyInput = document.getElementById('prefApiKeyInput');
     const saveApiKeyBtn = document.getElementById('prefSaveApiKeyBtn');
@@ -107,6 +124,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveApiKeyBtn.style.color = '';
                 }, 2000);
             }
+        };
+    }
+
+    // Gemini Custom System Prompt Settings Handler
+    const systemPromptInput = document.getElementById('prefSystemPromptInput');
+    const saveSystemPromptBtn = document.getElementById('prefSaveSystemPromptBtn');
+    const resetSystemPromptBtn = document.getElementById('prefResetSystemPromptBtn');
+
+    if (systemPromptInput) {
+        systemPromptInput.value = localStorage.getItem('gemini_system_prompt') || DEFAULT_SYSTEM_PROMPT;
+    }
+
+    if (saveSystemPromptBtn && systemPromptInput) {
+        saveSystemPromptBtn.onclick = () => {
+            const promptVal = systemPromptInput.value.trim();
+            if (promptVal) {
+                localStorage.setItem('gemini_system_prompt', promptVal);
+                saveSystemPromptBtn.textContent = 'Saved!';
+                saveSystemPromptBtn.style.color = '#4ade80';
+                setTimeout(() => {
+                    saveSystemPromptBtn.textContent = 'Save Prompt';
+                    saveSystemPromptBtn.style.color = '';
+                }, 2000);
+            }
+        };
+    }
+
+    if (resetSystemPromptBtn && systemPromptInput) {
+        resetSystemPromptBtn.onclick = () => {
+            localStorage.removeItem('gemini_system_prompt');
+            systemPromptInput.value = DEFAULT_SYSTEM_PROMPT;
+            resetSystemPromptBtn.textContent = 'Reset!';
+            resetSystemPromptBtn.style.color = '#38bdf8';
+            setTimeout(() => {
+                resetSystemPromptBtn.textContent = 'Reset Default';
+                resetSystemPromptBtn.style.color = '';
+            }, 2000);
         };
     }
 

@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="css/style.css">
+    <!-- KaTeX Math & Formula Typography Engine -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </head>
 
 <body data-theme="crimson" data-layout="center">
@@ -68,18 +71,8 @@
                         </div>
 
                         <div class="search-input-wrapper">
-                            <!-- AI Mode Badge (Shows when /a is active) -->
-                            <div class="ai-mode-badge" id="aiModeBadge" style="display: none;">
-                                <span class="material-icons" style="font-size:12px;">auto_awesome</span>
-                                <span>GEMINI 3.5</span>
-                            </div>
-                            <input type="text" class="search-input" id="heroSearchInput" placeholder="Search the web (or type '/a' for Gemini AI)..." autocomplete="off">
+                            <input type="text" class="search-input" id="heroSearchInput" placeholder="Search and ask anything" autocomplete="off">
                         </div>
-
-                        <!-- Quick Toggle AI Terminal Button -->
-                        <button class="ai-mode-toggle-btn" id="aiModeToggle" title="Open Gemini 3.5 AI Terminal (/a)">
-                            <span class="material-icons" style="font-size:17px;">auto_awesome</span>
-                        </button>
 
                         <button class="search-btn" id="heroSearchBtn" title="Search">
                             <span class="material-icons" style="font-size:18px;">arrow_forward</span>
@@ -91,9 +84,19 @@
                         <div class="terminal-header">
                             <div class="terminal-title-group">
                                 <span class="terminal-status-dot"></span>
-                                <span class="material-icons terminal-icon">auto_awesome</span>
-                                <span class="terminal-title">GEMINI 3.5 // NEURAL-LINK</span>
-                                <span class="terminal-model-badge">FLASH 3.5</span>
+                                <svg class="single-sparkle-icon terminal-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"/>
+                                </svg>
+                                <div class="terminal-mode-tabs" id="terminalModeTabs">
+                                    <button type="button" class="terminal-tab-btn active" id="tabModeChat" data-mode="chat">Chat</button>
+                                    <button type="button" class="terminal-tab-btn" id="tabModeDraft" data-mode="draft">Drafter</button>
+                                </div>
+                                <select class="terminal-model-select" id="terminalModelSelect" title="Switch Gemini Model">
+                                    <option value="gemini-3.7-flash" selected>3.7 Flash</option>
+                                    <option value="gemini-3.8-flash">3.8 Flash</option>
+                                    <option value="gemini-3.5-flash">3.5 Flash</option>
+                                    <option value="gemini-2.5-flash">2.5 Flash</option>
+                                </select>
                                 <span class="terminal-ping">18ms</span>
                             </div>
                             <div class="terminal-actions">
@@ -108,14 +111,65 @@
                             </div>
                         </div>
 
-                        <div class="terminal-feed" id="aiTerminalFeed"></div>
+                        <!-- View 1: Conversational Chat Stream -->
+                        <div class="terminal-view-chat active" id="terminalViewChat">
+                            <div class="terminal-feed" id="aiTerminalFeed"></div>
 
-                        <div class="terminal-prompt-bar">
-                            <span class="terminal-prompt-label">usr@portal:~$</span>
-                            <input type="text" class="terminal-input" id="aiTerminalInput" placeholder="Enter query, or /help, /clear, /exit..." autocomplete="off">
-                            <button class="terminal-send-btn" id="aiTerminalSend" title="Send (Enter)">
-                                <span class="material-icons" style="font-size:16px;">send</span>
-                            </button>
+                            <div class="terminal-prompt-bar">
+                                <span class="terminal-prompt-label">usr@portal:~$</span>
+                                <input type="text" class="terminal-input" id="aiTerminalInput" placeholder="Enter query, or /help, /clear, /exit..." autocomplete="off">
+                                <button class="terminal-send-btn" id="aiTerminalSend" title="Send (Enter)">
+                                    <span class="material-icons" style="font-size:16px;">send</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- View 2: Text Drafting & Tone Generator Studio -->
+                        <div class="terminal-view-draft" id="terminalViewDraft">
+                            <div class="draft-workspace">
+                                <div class="draft-input-section">
+                                    <div class="draft-textarea-box">
+                                        <textarea class="draft-textarea" id="draftTextarea" placeholder="Type or paste text to fix grammar or generate tone alternatives (Professional, Casual, Polite, Funny, Social Post, Witty)..." rows="3"></textarea>
+                                        <div class="draft-meta-bar">
+                                            <span class="draft-counts" id="draftCounts">0 words · 0 chars</span>
+                                            <div class="draft-quick-actions">
+                                                <button type="button" class="draft-text-btn" id="btnDraftSample" title="Insert a sample draft to test">Sample</button>
+                                                <button type="button" class="draft-text-btn" id="btnDraftClear" title="Clear editor">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="draft-toolbar">
+                                        <div class="draft-main-actions">
+                                            <button type="button" class="draft-action-btn primary" id="btnFixGrammar">
+                                                <span class="material-icons" style="font-size:15px;">spellcheck</span>
+                                                <span>Fix Grammar</span>
+                                            </button>
+                                            <button type="button" class="draft-action-btn secondary" id="btnGenerateAllTones">
+                                                <span class="material-icons" style="font-size:15px;">auto_awesome</span>
+                                                <span>Tone Alternatives</span>
+                                            </button>
+                                        </div>
+                                        <div class="draft-tone-chips" id="draftToneChips">
+                                            <button type="button" class="tone-chip" data-tone="professional" title="Generate Professional tone"><span class="material-icons tone-icon">business_center</span> Professional</button>
+                                            <button type="button" class="tone-chip" data-tone="casual" title="Generate Casual tone"><span class="material-icons tone-icon">chat</span> Casual</button>
+                                            <button type="button" class="tone-chip" data-tone="polite" title="Generate Polite tone"><span class="material-icons tone-icon">handshake</span> Polite</button>
+                                            <button type="button" class="tone-chip" data-tone="funny" title="Generate Funny tone"><span class="material-icons tone-icon">theater_comedy</span> Funny</button>
+                                            <button type="button" class="tone-chip" data-tone="social_post" title="Generate Social Post format"><span class="material-icons tone-icon">share</span> Social Post</button>
+                                            <button type="button" class="tone-chip" data-tone="witty" title="Generate Witty tone"><span class="material-icons tone-icon">bolt</span> Witty</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="draft-cards-scroll">
+                                    <div class="draft-cards-container" id="draftCardsContainer">
+                                        <div class="draft-empty-state" id="draftEmptyState">
+                                            <span class="material-icons" style="font-size: 26px; opacity: 0.35;">edit_note</span>
+                                            <p>Enter text above and choose <strong>Fix Grammar</strong> or a <strong>Tone Alternative</strong>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,7 +196,7 @@
             <div class="split-right">
                 <div class="glass-panel search-glass">
                     <div class="search-input-wrapper">
-                        <input type="text" class="search-input" placeholder="Search the web...">
+                        <input type="text" class="search-input" placeholder="Search and ask anything">
                     </div>
                     <button class="search-btn" title="Search">
                         <span class="material-icons" style="font-size:18px;">arrow_forward</span>
@@ -225,7 +279,7 @@
                 <span class="material-icons close-widget">close</span>
             </div>
             <div class="weather-info">
-                <div class="weather-icon" id="weatherIcon">☁️</div>
+                <div class="weather-icon" id="weatherIcon"><span class="material-icons" style="font-size:36px;">cloud</span></div>
                 <div class="weather-temp" id="weatherTemp">--°</div>
                 <div class="weather-loc" id="weatherLoc">Detecting...</div>
                 <input type="text" class="input-glass" style="text-align:center" placeholder="Enter City Name" id="cityInput">
@@ -389,7 +443,9 @@
 
             <!-- Gemini 3.5 AI Action Button -->
             <div class="dock-item action-widget" data-target="ai" id="dockAiBtn" role="button" tabindex="0">
-                <span class="material-icons" style="color:var(--accent-color);">auto_awesome</span>
+                <svg class="single-sparkle-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="color:var(--accent-color);">
+                    <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"/>
+                </svg>
                 <div class="tooltip">Gemini AI (/a)</div>
             </div>
 
@@ -507,7 +563,20 @@
                 <button class="btn btn-glass" id="prefFocusToggle" style="min-width: 90px;">Disabled</button>
             </div>
 
-            <div class="pref-section-title" style="margin-top: 14px; font-size: 0.82rem; font-weight: 600; color: var(--accent-color); font-family: 'JetBrains Mono', monospace;">✦ GEMINI AI CONFIGURATION</div>
+            <div class="pref-section-title" style="margin-top: 14px; font-size: 0.82rem; font-weight: 600; color: var(--accent-color); font-family: 'JetBrains Mono', monospace;"><span class="material-icons" style="font-size:14px; vertical-align:text-bottom; margin-right:4px;">auto_awesome</span>GEMINI AI CONFIGURATION</div>
+
+            <div class="pref-row">
+                <div>
+                    <div class="pref-label">Gemini Neural Model</div>
+                    <div class="pref-sub">Flagship Gemini 3.7 / 3.8 / 3.5 / 2.5 Flash</div>
+                </div>
+                <select class="input-glass" id="prefModelSelect" style="min-width: 140px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+                    <option value="gemini-3.7-flash" selected>Gemini 3.7 Flash</option>
+                    <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+                    <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                </select>
+            </div>
 
             <div class="pref-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -515,11 +584,24 @@
                         <div class="pref-label">API Key (Google AI Studio)</div>
                         <div class="pref-sub">Stored securely in browser localStorage</div>
                     </div>
-                    <span class="terminal-model-badge" style="font-size: 0.68rem; padding: 2px 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: var(--accent-color);">3.5 Flash</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <input type="password" class="input-glass" id="prefApiKeyInput" placeholder="Enter Gemini API key..." style="flex:1; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; padding: 6px 10px;">
                     <button class="btn btn-glass" id="prefSaveApiKeyBtn" style="min-width: 70px;">Save</button>
+                </div>
+            </div>
+
+            <div class="pref-row" style="flex-direction: column; align-items: stretch; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="pref-label">AI System Prompt</div>
+                        <div class="pref-sub">Direct, no-fluff instructions & output format rules</div>
+                    </div>
+                    <button class="btn btn-glass" id="prefResetSystemPromptBtn" style="font-size: 0.70rem; padding: 3px 8px;">Reset Default</button>
+                </div>
+                <textarea class="input-glass" id="prefSystemPromptInput" rows="6" placeholder="Enter custom AI system instructions..." style="font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; line-height: 1.45; padding: 8px 10px; resize: vertical;"></textarea>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-glass" id="prefSaveSystemPromptBtn" style="min-width: 90px;">Save Prompt</button>
                 </div>
             </div>
         </div>
