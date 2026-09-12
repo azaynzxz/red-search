@@ -1665,14 +1665,14 @@ ${text}`;
             codeBlocks.forEach((block, i) => {
                 out = out.replace(`§§§CODE${i}§§§`, block);
             });
+            inlineCodes.forEach((code, i) => {
+                out = out.replace(`§§§INLINE${i}§§§`, code);
+            });
             mathBlocks.forEach((block, i) => {
                 out = out.replace(`§§§MATH${i}§§§`, block);
             });
             mathInlines.forEach((inline, i) => {
                 out = out.replace(`§§§INLINEMATH${i}§§§`, inline);
-            });
-            inlineCodes.forEach((code, i) => {
-                out = out.replace(`§§§INLINE${i}§§§`, code);
             });
         }
         // Safety cleanup: strip any accidental remaining token markers
